@@ -91,7 +91,7 @@ Config::~Config() {
 void Config::initDefault() {
     scale = 1;
     startpos = 150;
-    frames = 100;  // changed this to 100 because 1000 is super slow
+    frames = 50;  // changed this to 50 because 1000 is super slow
     defaultInstructs = "Shoot";
     instructs << defaultInstructs;
     name = "PLAY1";

@@ -13,12 +13,13 @@
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
-        : QDialog(parent), bullets(), shipFiringSound(this), gameScore(0) {
+    : QDialog(parent), bullets(), shipFiringSound(this), gameScore(0) {
     // SET UP GAME DIMENSIONS AND CONFIG
     Config* c = Config::getInstance();
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
     this->frames = c->get_frames();
+    this->playerOverride = false;
 
     // MENU
     QList<QPair<QString, int>> dummy;
@@ -86,8 +87,43 @@ void GameDialog::pauseStart() {
 }
 
 void GameDialog::keyPressEvent(QKeyEvent* event) {
-    if (event->key() == Qt::Key_P) {
+    // Deal with overriding config file
+    if(!playerOverride){
+        switch(event->key()){
+        case(Qt::Key_Left):
+        case(Qt::Key_Right):
+        case(Qt::Key_Space):
+            playerOverride = true;
+        }
+    }
+
+    switch(event->key()){
+    case(Qt::Key_P):
         pauseStart();
+        break;
+    case(Qt::Key_Left):
+        pressedKeys[Qt::Key_Left] = true;
+        break;
+    case(Qt::Key_Right):
+        pressedKeys[Qt::Key_Right] = true;
+        break;
+    case(Qt::Key_Space):
+        pressedKeys[Qt::Key_Space] = true;
+        break;
+    }
+}
+
+void GameDialog::keyReleaseEvent(QKeyEvent* event) {
+    switch(event->key()){
+    case(Qt::Key_Left):
+        pressedKeys[Qt::Key_Left] = false;
+        break;
+    case(Qt::Key_Right):
+        pressedKeys[Qt::Key_Right] = false;
+        break;
+    case(Qt::Key_Space):
+        pressedKeys[Qt::Key_Space] = false;
+        break;
     }
 }
 
@@ -110,16 +146,28 @@ void GameDialog::nextFrame() {
         QString ins = instruct[next_instruct];
         next_instruct++;
 
-        if (ins == "Left") {
-            ship->move_left();
-
-        } else if (ins == "Right") {
-            ship->move_right();
-
-        } else if (ins == "Shoot") {
-            bullets.push_back(this->ship->shoot());
-            this->shipFiringSound.play();
+        if(!playerOverride){
+            if (ins == "Left") {
+                ship->move_left();
+            } else if (ins == "Right") {
+                ship->move_right();
+            } else if (ins == "Shoot") {
+                bullets.push_back(this->ship->shoot());
+                this->shipFiringSound.play();
+            }
+        }else{ // use user input keys
+            if (pressedKeys[Qt::Key_Left]) {
+                ship->move_left();
+            }
+            if (pressedKeys[Qt::Key_Right]) {
+                ship->move_right();
+            }
+            if (pressedKeys[Qt::Key_Space]) {
+                bullets.push_back(this->ship->shoot());
+                this->shipFiringSound.play();
+            }
         }
+
 
         updateBullets();
 
@@ -189,7 +237,7 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
                 close();  // DEAD SHIP AGAIN
             }
         } else {
-          checkSwarmCollisions(child);
+            checkSwarmCollisions(child);
         }
     }
 }

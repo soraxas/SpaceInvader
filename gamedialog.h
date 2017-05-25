@@ -35,6 +35,7 @@ protected:
 
     // keys
     void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 
     // about the canvas
     int frames;
@@ -55,6 +56,9 @@ protected:
 
     // score
     int gameScore;  // this run's score.
+private:
+    bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
+    std::map<int,bool> pressedKeys;
 public slots:
     void nextFrame();
     // menus
