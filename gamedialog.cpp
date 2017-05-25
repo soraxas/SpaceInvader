@@ -92,6 +92,8 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
         switch(event->key()){
         case(Qt::Key_Left):
         case(Qt::Key_Right):
+        case(Qt::Key_A):
+        case(Qt::Key_D):
         case(Qt::Key_Space):
             playerOverride = true;
         }
@@ -107,6 +109,12 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     case(Qt::Key_Right):
         pressedKeys[Qt::Key_Right] = true;
         break;
+    case(Qt::Key_A):
+        pressedKeys[Qt::Key_A] = true;
+        break;
+    case(Qt::Key_D):
+        pressedKeys[Qt::Key_D] = true;
+        break;
     case(Qt::Key_Space):
         pressedKeys[Qt::Key_Space] = true;
         break;
@@ -120,6 +128,12 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
         break;
     case(Qt::Key_Right):
         pressedKeys[Qt::Key_Right] = false;
+        break;
+    case(Qt::Key_A):
+        pressedKeys[Qt::Key_A] = false;
+        break;
+    case(Qt::Key_D):
+        pressedKeys[Qt::Key_D] = false;
         break;
     case(Qt::Key_Space):
         pressedKeys[Qt::Key_Space] = false;
@@ -152,24 +166,31 @@ void GameDialog::nextFrame() {
             } else if (ins == "Right") {
                 ship->move_right();
             } else if (ins == "Shoot") {
-                bullets.push_back(this->ship->shoot());
-                this->shipFiringSound.play();
+                Bullet* b = this->ship->shoot();
+                if(b){
+                    bullets.push_back(b);
+                    this->shipFiringSound.play();
+                }
             }
         }else{ // use user input keys
-            if (pressedKeys[Qt::Key_Left]) {
+            if (pressedKeys[Qt::Key_Left] || pressedKeys[Qt::Key_A]) {
                 ship->move_left();
             }
-            if (pressedKeys[Qt::Key_Right]) {
+            if (pressedKeys[Qt::Key_Right] || pressedKeys[Qt::Key_D]) {
                 ship->move_right();
             }
             if (pressedKeys[Qt::Key_Space]) {
-                bullets.push_back(this->ship->shoot());
-                this->shipFiringSound.play();
+                Bullet* b = this->ship->shoot();
+                if(b){
+                    bullets.push_back(b);
+                    this->shipFiringSound.play();
+                }
             }
         }
 
 
         updateBullets();
+        ship->update();
 
         // loop through each alien swarm, move and calculated collisions
         swarms->move("");  // recursive.

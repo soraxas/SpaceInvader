@@ -13,13 +13,14 @@ private:
     int velocity;
     int bullet_velocity;
     BulletBuilder builder;
-
+    unsigned ShootCooldownCounter; // counter to count when can the ship shoot next
+    unsigned ShootCooldownLimit; // the cooldown it takes for the ship can shoot again
 public:
     Ship(QPixmap image, double scale, int x, int y);
     Bullet* shoot();
     void move_left();
     void move_right();
-
+    void update();
     virtual ~Ship();
 };
 }
