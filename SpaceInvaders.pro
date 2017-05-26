@@ -40,7 +40,9 @@ SOURCES += main.cpp\
     alienbuilder.cpp \
     hunter.cpp \
     menu.cpp \
-    cursor.cpp
+    cursor.cpp \
+    background.cpp \
+    fighterstate.cpp
 
 HEADERS  += \
     base.h \
@@ -58,7 +60,10 @@ HEADERS  += \
     hunter.h \
     menu.h \
     alienbase.h \
-    cursor.h
+    cursor.h \
+    background.h \
+    cursorstate.h \
+    fighterstate.h
 
 FORMS    += dialog.ui
 

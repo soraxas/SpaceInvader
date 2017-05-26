@@ -16,13 +16,14 @@
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
-    : QDialog(parent), bullets(), shipFiringSound(this), gameScore(0) {
+    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false), gameScore(0), bg(500, 500) {
     // SET UP GAME DIMENSIONS AND CONFIG
     Config* c = Config::getInstance();
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
     this->frames = c->get_frames();
     this->playerOverride = false;
+    this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
 
     // MENU
     QList<QPair<QString, int>> dummy;
@@ -131,6 +132,9 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     case(Qt::Key_Space):
         pressedKeys[Qt::Key_Space] = true;
         break;
+    case(Qt::Key_F1):
+        debugMode = !debugMode;
+        break;
     }
 }
 
@@ -154,27 +158,30 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
     }
 }
 
+
+void GameDialog::mousePressEvent(QMouseEvent* event){
+    switch(event->button()){
+    case(Qt::LeftButton):
+        cursor.leftClickPressed(true);
+        break;
+    case(Qt::RightButton):
+        cursor.rightClickPressed(true);
+        break;
+    }
+}
+void GameDialog::mouseReleaseEvent(QMouseEvent* event){
+    switch(event->button()){
+    case(Qt::LeftButton):
+        cursor.leftClickPressed(false);
+        break;
+    case(Qt::RightButton):
+        cursor.rightClickPressed(false);
+        break;
+    }
+}
 void GameDialog::mouseMoveEvent(QMouseEvent* event){
-    //    qDebug() << QString::number(event->pos().x());
-    //    qDebug() << QString::number(event->pos().y());
-
-    int radius = 30;
-    int cursorX = event->pos().x();
-    int cursorY = event->pos().y();
-
     cursor.updateLoc(event->pos().x(), event->pos().y());
-
-    //    // delete bullet near cursor
-    //    for (int i = 0; i < bullets.size(); i++) {
-    //        Bullet* b = bullets[i];
-    //        double dist = qSqrt(qPow(b->get_y() - cursorY,2) + qPow(b->get_x() - cursorX,2));
-    //        qDebug() << QString::number(dist);
-    //        if (dist < radius) {
-    //            delete b;
-    //            bullets.erase(bullets.begin() + i);
-    //            i--;
-    //        }
-    //    }
+//    cursor.getCurState()->processMouseEvent(event, this);
 }
 
 // shows this game score
@@ -225,8 +232,9 @@ void GameDialog::nextFrame() {
         }
 
 
-        updateBullets();
-        ship->update();
+        updateBullets(); //update bullets
+        ship->update(); //update ship
+        bg.nextFrame(); //update background
 
         // loop through each alien swarm, move and calculated collisions
         swarms->move("");  // recursive.
@@ -251,14 +259,9 @@ void GameDialog::updateBullets()
         // WHEN BULLET OFF GAME SCREEN, FREE MEMORY AND DELETE
         int score = get_collided(b, swarms);
 
-        // Check for cursor near bullets
-        // delete bullet near cursor
-        double dist = qSqrt(qPow(b->get_y() - cursor.getY(),2) + qPow(b->get_x() - cursor.getX(),2));
-
         if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT ||
                 b->get_x() < 0 || b->get_x() >= SCALEDWIDTH ||
-                score > 0 ||
-                dist < cursor.getRadius()) {
+                score > 0) {
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;
@@ -308,9 +311,11 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
 
 // PAINTING THE SHIP AND ANY BULLETS
 void GameDialog::paintEvent(QPaintEvent*) {
-    // SHIP
     QPainter painter(this);
+    // Draw background first
+    bg.draw(&painter);
 
+    // SHIP
     painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
 
     // loop through each alien swarm and draw
@@ -318,6 +323,13 @@ void GameDialog::paintEvent(QPaintEvent*) {
 
     // BULLETS last so they draw over everything
     paintBullets(painter);
+
+    // draw anything that cursor want to
+    cursor.draw(&painter);
+
+    // draw debug info if needed
+    if(debugMode)
+        printDebugInfo(&painter);
 }
 
 // if this bullet is unfriendly, only check if it hits Ship
@@ -376,4 +388,29 @@ void GameDialog::addBullets(const QList<Bullet*>& list) {
         this->bullets.push_back(b);
     }
 }
+
+void GameDialog::printDebugInfo(QPainter* p){
+    if(!debugMode)
+        return;
+
+    p->setPen(Qt::yellow);
+    int line_height = 18;
+    QString str;
+
+    // print keyboard hint
+    p->drawText(5, line_height, "[F1] Toggle Cheat | [S] Change shape | [C] Change color | [P] Pause/Resume");
+
+    // print spaceship x, y
+    str = "Spaceship X:";
+    str += QString::number(ship->get_x());
+    str += " Y:";
+    str += QString::number(ship->get_y());
+    p->drawText(20, line_height * 2, str);
+
+    str = "Current action: ";
+    if (paused)
+        str += "--PAUSED--";
+    p->drawText(20, line_height * 6, str);
+}
+
 }
