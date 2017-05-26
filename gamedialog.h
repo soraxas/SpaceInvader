@@ -9,6 +9,9 @@
 #include <QSoundEffect>
 #include <QWidget>
 #include <vector>
+#include <QMouseEvent>
+#include "cursor.h"
+
 
 namespace game {
 class GameDialog : public QDialog {
@@ -36,6 +39,7 @@ protected:
     // keys
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
 
     // about the canvas
     int frames;
@@ -59,6 +63,10 @@ protected:
 private:
     bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
     std::map<int,bool> pressedKeys;
+
+    // cursor for various functions
+    Cursor cursor;
+
 public slots:
     void nextFrame();
     // menus

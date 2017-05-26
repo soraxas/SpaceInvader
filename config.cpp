@@ -54,7 +54,7 @@ namespace game {
 
 Config* Config::s_configInstance = 0;
 
-Config::Config() {
+Config::Config() : shipUseXwing(false){
     // GENERAL READING OF CONFIG FILE
     QFile c_file("../SpaceInvaders/config.txt");
     c_file.open(QIODevice::ReadOnly);
@@ -124,6 +124,8 @@ void Config::processShip(QTextStream& in) {
 
         if (l.isEmpty()) {
             continue;
+        } else if (l.startsWith("ship=xwing")) {
+            this->shipUseXwing = true;
         } else if (l.startsWith("size=")) {
             l = l.split("=").last();
             processConfigSizeLine(l);

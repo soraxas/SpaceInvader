@@ -3,6 +3,8 @@
         <file>Sounds/shoot.wav</file>
         <file>Images/laser.png</file>
         <file>Images/ship.png</file>
+        <file>Images/ship_xwing.png</file>
+        <file>Images/ship_tiefighter.png</file>
         <file>Images/blueInvader.png</file>
         <file>Images/redInvader.png</file>
         <file>Images/blueInvaderLaser.png</file>

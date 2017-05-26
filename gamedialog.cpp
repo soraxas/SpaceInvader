@@ -9,6 +9,9 @@
 #include <QTimer>
 #include <QWidget>
 #include <vector>
+#include <QCursor>
+#include <QtMath>
+
 
 namespace game {
 
@@ -30,7 +33,11 @@ GameDialog::GameDialog(QWidget* parent)
     this->setFixedHeight(SCALEDHEIGHT);
     // SHIP
     QPixmap ship;
-    ship.load(":/Images/ship.png");
+    if(c->shipUseXwing){
+        ship.load(":/Images/ship_xwing.png");
+    }else{
+        ship.load(":/Images/ship.png");
+    }
     this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
     this->next_instruct = 0;
     // SHIP SOUND
@@ -48,7 +55,13 @@ GameDialog::GameDialog(QWidget* parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
     timer->start(this->frames);
 
+    // track mouse for extension
+    this->setMouseTracking(true);
+
     update();
+
+    // set the global cursor
+    this->setCursor(QCursor(cursor.getPixmap(100 * c->get_scale()), -1, -1));
 }
 
 GameDialog::~GameDialog() {
@@ -141,6 +154,29 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
     }
 }
 
+void GameDialog::mouseMoveEvent(QMouseEvent* event){
+    //    qDebug() << QString::number(event->pos().x());
+    //    qDebug() << QString::number(event->pos().y());
+
+    int radius = 30;
+    int cursorX = event->pos().x();
+    int cursorY = event->pos().y();
+
+    cursor.updateLoc(event->pos().x(), event->pos().y());
+
+    //    // delete bullet near cursor
+    //    for (int i = 0; i < bullets.size(); i++) {
+    //        Bullet* b = bullets[i];
+    //        double dist = qSqrt(qPow(b->get_y() - cursorY,2) + qPow(b->get_x() - cursorX,2));
+    //        qDebug() << QString::number(dist);
+    //        if (dist < radius) {
+    //            delete b;
+    //            bullets.erase(bullets.begin() + i);
+    //            i--;
+    //        }
+    //    }
+}
+
 // shows this game score
 void GameDialog::showScore() {
     // in future, implement 'score list' in menu.
@@ -214,8 +250,15 @@ void GameDialog::updateBullets()
         Bullet* b = bullets[i];
         // WHEN BULLET OFF GAME SCREEN, FREE MEMORY AND DELETE
         int score = get_collided(b, swarms);
-        if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT || b->get_x() < 0 ||
-                b->get_x() >= SCALEDWIDTH || score > 0) {
+
+        // Check for cursor near bullets
+        // delete bullet near cursor
+        double dist = qSqrt(qPow(b->get_y() - cursor.getY(),2) + qPow(b->get_x() - cursor.getX(),2));
+
+        if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT ||
+                b->get_x() < 0 || b->get_x() >= SCALEDWIDTH ||
+                score > 0 ||
+                dist < cursor.getRadius()) {
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;

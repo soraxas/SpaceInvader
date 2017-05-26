@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia
+QT       += core gui multimedia\
+            gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -38,7 +39,8 @@ SOURCES += main.cpp\
     diagonalbullet.cpp \
     alienbuilder.cpp \
     hunter.cpp \
-    menu.cpp
+    menu.cpp \
+    cursor.cpp
 
 HEADERS  += \
     base.h \
@@ -55,7 +57,8 @@ HEADERS  += \
     alienbuilder.h \
     hunter.h \
     menu.h \
-    alienbase.h
+    alienbase.h \
+    cursor.h
 
 FORMS    += dialog.ui
 

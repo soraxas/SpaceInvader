@@ -1,6 +1,7 @@
 [SHIP]
 size=Large
 name=Bobbetta
+ship=xwing
 x=200
 instructions=Right,Shoot,Right,Right,Right,Right,Shoot, Right, Left, Shoot,Left,Right,Right,Right,Left,Shoot, Left, Left, Shoot, Left,Left
 frames=50

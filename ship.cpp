@@ -2,6 +2,7 @@
 #include "bullet.h"
 #include "config.h"
 #define COOLDOWN 15
+#define SHIPWIDTH 80
 
 namespace game {
 Ship::Ship(QPixmap image, double scale, int x, int y)
@@ -10,7 +11,7 @@ Ship::Ship(QPixmap image, double scale, int x, int y)
            Config::getInstance()->get_SCALEDWIDTH(), 0),
       velocity(10), bullet_velocity(15), builder(bullet_velocity, *this, "laser", true) {
     // adjust the image size according to scale
-    this->set_image(this->get_image().scaledToWidth(this->get_image().width() * scale));
+    this->set_image(this->get_image().scaledToWidth(/*this->get_image().width()*/ SHIPWIDTH * scale));
 
     // readjust (x,y) since the image was resized
     boundaryX = Config::getInstance()->get_SCALEDWIDTH() - this->get_image().width();

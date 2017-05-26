@@ -62,5 +62,6 @@ public:
 
     int get_SCALEDWIDTH();
     int get_SCALEDHEIGHT();
+    bool shipUseXwing;
 };
 }
