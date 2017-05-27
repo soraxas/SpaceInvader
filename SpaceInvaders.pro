@@ -43,7 +43,10 @@ SOURCES += main.cpp\
     cursor.cpp \
     background.cpp \
     fighterstate.cpp \
-    normalstate.cpp
+    normalstate.cpp \
+    explosion.cpp \
+    barrierblock.cpp \
+    penstate.cpp
 
 HEADERS  += \
     base.h \
@@ -65,7 +68,10 @@ HEADERS  += \
     background.h \
     cursorstate.h \
     fighterstate.h \
-    normalstate.h
+    normalstate.h \
+    explosion.h \
+    barrierblock.h \
+    penstate.h
 
 FORMS    += dialog.ui
 

@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>Sounds/shoot.wav</file>
+        <file>Images/pen.png</file>
+        <file>Images/barrier.png</file>
         <file>Images/laser.png</file>
         <file>Images/PlasmaBall.png</file>
         <file>Images/ship.png</file>
@@ -16,5 +18,30 @@
         <file>Images/hunterInvaderLaser.png</file>
         <file>Sounds/invader.wav</file>
         <file>Sounds/death.wav</file>
+        <file>Images/shipExplosion_0.png</file>
+        <file>Images/shipExplosion_1.png</file>
+        <file>Images/shipExplosion_2.png</file>
+        <file>Images/shipExplosion_3.png</file>
+        <file>Images/shipExplosion_4.png</file>
+        <file>Images/shipExplosion_5.png</file>
+        <file>Images/shipExplosion_6.png</file>
+        <file>Images/shipExplosion_7.png</file>
+        <file>Images/shipExplosion_8.png</file>
+        <file>Images/shipExplosion_9.png</file>
+        <file>Images/shipExplosion_10.png</file>
+        <file>Images/shipExplosion_11.png</file>
+        <file>Images/shipExplosion_12.png</file>
+        <file>Images/shipExplosion_13.png</file>
+        <file>Images/shipExplosion_14.png</file>
+        <file>Images/shipExplosion_15.png</file>
+        <file>Images/shipExplosion_16.png</file>
+        <file>Images/shipExplosion_17.png</file>
+        <file>Images/shipExplosion_18.png</file>
+        <file>Images/shipExplosion_19.png</file>
+        <file>Images/shipExplosion_20.png</file>
+        <file>Images/shipExplosion_21.png</file>
+        <file>Images/shipExplosion_22.png</file>
+        <file>Images/shipExplosion_23.png</file>
+
     </qresource>
 </RCC>

@@ -9,9 +9,10 @@ Ship::Ship(QPixmap image, double scale, int x, int y)
     : Base(image, scale, x, y - image.height() * scale,
            Config::getInstance()->get_SCALEDWIDTH(),
            Config::getInstance()->get_SCALEDWIDTH(), 0),
-      velocity(10), bullet_velocity(15), builder(bullet_velocity, *this, "laser", true) {
+      velocity(10), bullet_velocity(15), builder(bullet_velocity, *this, "laser", true), dead(false)
+{
     // adjust the image size according to scale
-    this->set_image(this->get_image().scaledToWidth(/*this->get_image().width()*/ SHIPWIDTH * scale));
+    this->set_image(this->get_image().scaledToWidth(SHIPWIDTH * scale));
 
     // readjust (x,y) since the image was resized
     boundaryX = Config::getInstance()->get_SCALEDWIDTH() - this->get_image().width();

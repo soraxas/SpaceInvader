@@ -1,4 +1,3 @@
-#include <QtMath>
 #include "gamedialog.h"
 #include "normalstate.h"
 

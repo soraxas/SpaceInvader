@@ -5,12 +5,13 @@
 #include <QPainter>
 #include <vector>
 #include "cursorstate.h"
-#include "fighterstate.h"
 #include "normalstate.h"
+#include "fighterstate.h"
+#include "penstate.h"
 
 namespace game{
 
-enum CURSOR_STATE{NORMAL, FIGHTER, END_OF_CURSOR_STATE};
+enum CURSOR_STATE{NORMAL, FIGHTER, PEN, END_OF_CURSOR_STATE};
 class GameDialog;
 class Cursor
 {

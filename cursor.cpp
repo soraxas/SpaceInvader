@@ -3,10 +3,15 @@
 namespace game{
 Cursor::Cursor(GameDialog* gDialog) : leftPressing(false), rightPressing(false), radius(5)
 {
+    // the normal state for the cursor (default)
     CursorState* normal= new NormalState(this, gDialog);
     cursorStatesList[NORMAL] = normal;
+    // the TIE-Fighter plane state for the cursor (blocking incoming fire)
     CursorState* fighter = new FighterState(this, gDialog);
     cursorStatesList[FIGHTER] = fighter;
+    // the pen state for the cursor (drawing barrier on the screen)
+    CursorState* pen = new PenState(this, gDialog);
+    cursorStatesList[PEN] = pen;
 
     setCursorState(NORMAL);
 }

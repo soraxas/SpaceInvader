@@ -236,6 +236,9 @@ void GameDialog::nextFrame() {
         updateBullets(); //update bullets
         ship->update(); //update ship
         bg.nextFrame(); //update background
+        // update explosions
+        for(Explosion& e: explosions)
+            e.nextFrame();
 
         // loop through each alien swarm, move and calculated collisions
         swarms->move("");  // recursive.
@@ -253,6 +256,22 @@ void GameDialog::paintBullets(QPainter& painter) {
     }
 }
 
+bool GameDialog::updateBullets_barrierChkHelper(int x, int y){
+    // check if the given x, y is hit with the barrier block
+    std::vector<BarrierBlock>::iterator it = barriers.begin();
+    while (it != barriers.end()) {
+        BarrierBlock b = (*it);
+        if(x >= b.x && x <= b.x + b.width &&
+                y >= b.y && y <= b.y + b.width){
+            // delete the barrier and return true
+            it = barriers.erase(it);
+            return true;
+        }
+        ++it;
+    }
+    return false;
+}
+
 void GameDialog::updateBullets()
 {
     for (int i = 0; i < bullets.size(); i++) {
@@ -260,15 +279,22 @@ void GameDialog::updateBullets()
         // WHEN BULLET OFF GAME SCREEN, FREE MEMORY AND DELETE
         int score = get_collided(b, swarms);
 
-        if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT ||
-                b->get_x() < 0 || b->get_x() >= SCALEDWIDTH ||
-                score > 0) {
+        if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT || /* out of screen in Y */
+                b->get_x() < 0 || b->get_x() >= SCALEDWIDTH || /* out of screen in X */
+                score > 0 || /* hit the ship */
+                updateBullets_barrierChkHelper(b->get_x(), b->get_y())){ /* hit the barrier */
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;
         } else if (score == -1) {
             // DEAD SHIP!
-            close();
+            ship->dead = true;
+            explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
+                                           ship->get_y()+ship->get_image().height()/5,
+                                           ship->get_image().width()*1.4, ShipExplosion));
+            delete b;
+            bullets.erase(bullets.begin() + i);
+            i--;
         } else
         {
             b->move();// we move at the end so that we can see collisions before the game ends
@@ -302,7 +328,11 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
         if (list.size() == 0) {  // leaf
             // check if it is crashing into the player ship
             if (child->collides(*this->ship)) {
-                close();  // DEAD SHIP AGAIN
+                // DEAD SHIP AGAIN
+                ship->dead = true;
+                explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
+                                               ship->get_y()+ship->get_image().height()/5,
+                                               ship->get_image().width()*1.4, ShipExplosion));
             }
         } else {
             checkSwarmCollisions(child);
@@ -325,8 +355,23 @@ void GameDialog::paintEvent(QPaintEvent*) {
     // BULLETS last so they draw over everything
     paintBullets(painter);
 
+    // Draw all the barrier blocks
+    for(BarrierBlock b: barriers)
+        b.draw(&painter);
+
     // draw anything that cursor want to
     cursor.getCurState()->draw(&painter);
+
+    // draw explosions
+    std::vector<Explosion>::iterator it = explosions.begin();
+    while (it != explosions.end()) {
+        if((*it).finished) {
+            it = explosions.erase(it);
+            continue;
+        }
+        (*it).draw(&painter);
+        ++it;
+    }
 
     // draw debug info if needed
     if(debugMode)

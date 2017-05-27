@@ -20,6 +20,7 @@ void FighterState::leftClickEvent(){
     pixmap.load(":/Images/PlasmaBall.png");
     gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2 * 1.3), -1, -1));
 }
+
 void FighterState::leftReleaseEvent(){
     // set the cursor as the TIE Fighter image
     QPixmap pixmap;
@@ -56,19 +57,5 @@ void FighterState::update(){
 
 void FighterState::draw(QPainter* p){
     return;
-    int r = cursor->radius;
-    if(cursor->leftPressing){
-        QPixmap pixmap;
-        pixmap.load(":/Images/PlasmaBall.png");
-//        p->setPen(Qt::blue);
-//        p->drawEllipse(cursorX - r, cursorY - r, r*2, r*2);
-        p->drawPixmap(cursorX-cursor->radius, cursorY-cursor->radius, pixmap.scaledToWidth(cursor->radius*2));
-    }
-    else{
-        // set the cursor as the TIE Fighter image
-        QPixmap pixmap;
-        pixmap.load(":/Images/ship_tiefighter.png");
-        gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2), -1, -1));
-    }
 }
 }
