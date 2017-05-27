@@ -1,30 +1,34 @@
-//#ifndef CURSORSTATE_H
-//#define CURSORSTATE_H
+#ifndef CURSORSTATE_H
+#define CURSORSTATE_H
 
-//#include "cursor.h"
-//#include <QDialog>
-//#include <QKeyEvent>
-//#include <QMouseEvent>
+#include <QDialog>
+#include <QMouseEvent>
+#include <QCursor>
 
-//namespace game{
-//class GameDialog; // forward declare
+namespace game{
+class Cursor;
+class GameDialog;
+class CursorState{
+public:
+        CursorState(Cursor* c, GameDialog* gDialog) : cursor(c), gDialog(gDialog){}
+        virtual ~CursorState() {}
 
-//class CursorState
-//{
-//public:
-//        CursorState() {}
-//        virtual ~CursorState() {}
+        virtual void processMouseEvent(QMouseEvent* event) = 0;
+        virtual void leftClickEvent() = 0;
+        virtual void leftReleaseEvent() = 0;
+        virtual void rightClickEvent() = 0;
+        virtual void rightReleaseEvent() = 0;
 
-//        virtual void processMouseEvent(QMouseEvent *event, QWidget *dialog) = 0;
-////        virtual void processMouseEvent(QWheelEvent *event, QWidget *dialog) = 0;
+        virtual void updateCursorDisplay() = 0;
+        virtual void update() = 0; // update any logic
+        virtual void draw(QPainter* p) = 0;
 
-//        virtual void updateCursorDisplay(QWidget *dialog) = 0;
+        int cursorX;
+        int cursorY;
+protected:
+        Cursor* cursor;
+        GameDialog* gDialog;
 
-////protected:
-////        Cursor* cursor;
-//};
-//}
-//#endif // CURSORSTATE_H
-
-
-
+};
+}
+#endif // CURSORSTATE_H

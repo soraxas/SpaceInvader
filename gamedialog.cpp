@@ -12,11 +12,13 @@
 #include <QCursor>
 #include <QtMath>
 
+#define CURSOR_BASE_RADIUS 50
+
 
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
-    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false), gameScore(0), bg(500, 500) {
+    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false), gameScore(0), bg(500, 500), cursor(this) {
     // SET UP GAME DIMENSIONS AND CONFIG
     Config* c = Config::getInstance();
     SCALEDWIDTH = c->get_SCALEDWIDTH();
@@ -43,7 +45,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->next_instruct = 0;
     // SHIP SOUND
     shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
-    shipFiringSound.setVolume(0.3f);
+    shipFiringSound.setVolume(0.3);
 
     // ALIENS
     generateAliens(c->getSwarmList());
@@ -61,8 +63,9 @@ GameDialog::GameDialog(QWidget* parent)
 
     update();
 
-    // set the global cursor
-    this->setCursor(QCursor(cursor.getPixmap(100 * c->get_scale()), -1, -1));
+    // set the cursor
+    cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
+    cursor.setCursorState(NORMAL);
 }
 
 GameDialog::~GameDialog() {
@@ -136,6 +139,19 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
         debugMode = !debugMode;
         break;
     }
+
+    // the debug / Cheat mode key map
+    if(debugMode){
+        switch(event->key()){
+        case(Qt::Key_C):
+            // cycle through each cursor state
+            int s = cursor.state;
+            if(++s == END_OF_CURSOR_STATE)
+                s = 0; // loop back to zero (NORMAL STATE)
+            cursor.setCursorState(static_cast<CURSOR_STATE>(s)); // assign the cursor state
+            break;
+        }
+    }
 }
 
 void GameDialog::keyReleaseEvent(QKeyEvent* event) {
@@ -160,28 +176,13 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
 
 
 void GameDialog::mousePressEvent(QMouseEvent* event){
-    switch(event->button()){
-    case(Qt::LeftButton):
-        cursor.leftClickPressed(true);
-        break;
-    case(Qt::RightButton):
-        cursor.rightClickPressed(true);
-        break;
-    }
+    cursor.processMousePress(event);
 }
 void GameDialog::mouseReleaseEvent(QMouseEvent* event){
-    switch(event->button()){
-    case(Qt::LeftButton):
-        cursor.leftClickPressed(false);
-        break;
-    case(Qt::RightButton):
-        cursor.rightClickPressed(false);
-        break;
-    }
+    cursor.processMouseRelease(event);
 }
 void GameDialog::mouseMoveEvent(QMouseEvent* event){
-    cursor.updateLoc(event->pos().x(), event->pos().y());
-//    cursor.getCurState()->processMouseEvent(event, this);
+    cursor.getCurState()->processMouseEvent(event);
 }
 
 // shows this game score
@@ -231,7 +232,7 @@ void GameDialog::nextFrame() {
             }
         }
 
-
+        cursor.getCurState()->update(); // update cursor
         updateBullets(); //update bullets
         ship->update(); //update ship
         bg.nextFrame(); //update background
@@ -325,7 +326,7 @@ void GameDialog::paintEvent(QPaintEvent*) {
     paintBullets(painter);
 
     // draw anything that cursor want to
-    cursor.draw(&painter);
+    cursor.getCurState()->draw(&painter);
 
     // draw debug info if needed
     if(debugMode)
@@ -398,19 +399,20 @@ void GameDialog::printDebugInfo(QPainter* p){
     QString str;
 
     // print keyboard hint
-    p->drawText(5, line_height, "[F1] Toggle Cheat | [S] Change shape | [C] Change color | [P] Pause/Resume");
+    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [C] Change color | [P] Pause/Resume");
 
     // print spaceship x, y
-    str = "Spaceship X:";
+    str = "Spaceship [X:";
     str += QString::number(ship->get_x());
     str += " Y:";
-    str += QString::number(ship->get_y());
+    str += QString::number(ship->get_y()) + "]";
     p->drawText(20, line_height * 2, str);
 
-    str = "Current action: ";
+    // print cursor state
+    str = "Current Cursor: c";
     if (paused)
         str += "--PAUSED--";
-    p->drawText(20, line_height * 6, str);
+    p->drawText(20, line_height * 3, str);
 }
 
 }

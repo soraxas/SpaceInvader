@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>Sounds/shoot.wav</file>
         <file>Images/laser.png</file>
+        <file>Images/PlasmaBall.png</file>
         <file>Images/ship.png</file>
         <file>Images/ship_xwing.png</file>
         <file>Images/ship_tiefighter.png</file>

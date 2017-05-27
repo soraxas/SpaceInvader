@@ -1,14 +1,14 @@
-#ifndef FIGHTERSTATE_H
-#define FIGHTERSTATE_H
+#ifndef NORMALSTATE_H
+#define NORMALSTATE_H
 
 #include "cursorstate.h"
 #include "cursor.h"
 
-namespace game{
-class FighterState : public CursorState
+namespace game {
+class NormalState : public CursorState
 {
 public:
-    FighterState(Cursor* c, GameDialog* dialog);
+    NormalState(Cursor* c, GameDialog* gDialog);
 
     void processMouseEvent(QMouseEvent *event);
     void processMousePress(QMouseEvent* event);
@@ -22,7 +22,6 @@ public:
     void draw(QPainter* p);
     void update();
 };
-
 }
 
-#endif // FIGHTERSTATE_H
+#endif // NORMALSTATE_H

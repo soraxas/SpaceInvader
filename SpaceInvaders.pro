@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     menu.cpp \
     cursor.cpp \
     background.cpp \
-    fighterstate.cpp
+    fighterstate.cpp \
+    normalstate.cpp
 
 HEADERS  += \
     base.h \
@@ -63,7 +64,8 @@ HEADERS  += \
     cursor.h \
     background.h \
     cursorstate.h \
-    fighterstate.h
+    fighterstate.h \
+    normalstate.h
 
 FORMS    += dialog.ui
 

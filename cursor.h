@@ -5,40 +5,31 @@
 #include <QPainter>
 #include <vector>
 #include "cursorstate.h"
+#include "fighterstate.h"
+#include "normalstate.h"
 
 namespace game{
 
+enum CURSOR_STATE{NORMAL, FIGHTER, END_OF_CURSOR_STATE};
 class GameDialog;
-
-enum CURSOR_STATE{NORMAL, FIGHTER};
-
 class Cursor
 {
 public:
-    Cursor();
+    Cursor(GameDialog* gDialog);
     ~Cursor();
-    void updateLoc(int x, int y);
-    void leftClickPressed(bool pressed);
-    void rightClickPressed(bool pressed);
 
-    int getX() const;
-    int getY() const;
-    int getRadius() const;
-    QPixmap getPixmap(int width);
+    void processMousePress(QMouseEvent* event);
+    void processMouseRelease(QMouseEvent* event);
+    CursorState* getCurState();
+    void setCursorState(CURSOR_STATE state);
 
-    void draw(QPainter* p) const;
-    void update();
-
-//    CursorState* getCurState(){return currentState;}
-private:
-    int cursorX;
-    int cursorY;
-    bool leftClick;
-    bool rightClick;
+    bool leftPressing; // keep track if left button is currently pressing
+    bool rightPressing; // keep track if right button is currently pressing
     int radius; // radius of the cursor
 
-//    CursorState* currentState;
-//    std::map<CURSOR_STATE, CursorState*> cursorStatesList;
+    CURSOR_STATE state;
+    CursorState* currentState;
+    std::map<CURSOR_STATE, CursorState*> cursorStatesList;
 };
 }
 #endif // CURSOR_H
