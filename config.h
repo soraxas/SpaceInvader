@@ -21,7 +21,7 @@ private:
     void processSwarm(QTextStream& in);
     void processPairs(QStringList list, QList<QPair<int, int>>& positions);
     void processMoves(QStringList& move, QStringList& list);
-    void saveSwarm(QString type, QList<QPair<int, int>> positions, QStringList move, int shoot);
+    void saveSwarm(unsigned totalStageNum, QString type, QList<QPair<int, int>> positions, QStringList move, int shoot);
     void scalePositions();
     // SHIP values
     QString name;  // this will be useful in Stage 3 ;)
@@ -34,14 +34,14 @@ private:
     int SCALEDHEIGHT;
 
     // Swarm Info Map
-    QList<SwarmInfo> swarmList = {};
+    std::vector<QList<SwarmInfo>> swarmListStages;
 
     // default Alien values
     QStringList alienTypes;
     QString defaultAlienType;
     QStringList defaultAlienMove;
     const int defaultAlienShoot = 10;
-
+    int totalStageNum;
     void initDefault();
 
 protected:
@@ -57,7 +57,7 @@ public:
     double get_scale();
     int get_startpos();
     QStringList get_instructs();
-    QList<SwarmInfo> getSwarmList();
+    std::vector<QList<SwarmInfo>> getSwarmList();
     int get_frames();
 
     int get_SCALEDWIDTH();

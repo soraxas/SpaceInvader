@@ -73,10 +73,11 @@ public:
     int gameScore;  // this run's score.
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
-
+    Config* c;
 private:
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
+    int curStageNum;
     bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
     std::map<int,bool> pressedKeys;
     Background bg;

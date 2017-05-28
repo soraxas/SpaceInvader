@@ -18,9 +18,11 @@
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
-    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false), gameScore(0), bg(500, 500), cursor(this) {
+    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false),
+      gameScore(0), bg(500, 500), cursor(this) {
     // SET UP GAME DIMENSIONS AND CONFIG
-    Config* c = Config::getInstance();
+    c = Config::getInstance();
+    swarms = NULL;
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
     this->frames = c->get_frames();
@@ -47,8 +49,13 @@ GameDialog::GameDialog(QWidget* parent)
     shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
     shipFiringSound.setVolume(0.3);
 
+    // set the stage
+    if(c->getSwarmList().size() <= 1)
+        curStageNum = 0; // default stage 0 (legacy mode)
+    else
+        curStageNum = 1;
     // ALIENS
-    generateAliens(c->getSwarmList());
+    generateAliens(c->getSwarmList()[curStageNum]);
 
     // SET BACKGROUND
     setStyleSheet("background-color: #000000;");
@@ -60,6 +67,8 @@ GameDialog::GameDialog(QWidget* parent)
 
     // track mouse for extension
     this->setMouseTracking(true);
+
+
 
     update();
 
@@ -82,6 +91,8 @@ GameDialog::~GameDialog() {
 
 // make the swarms for this level.
 void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
+    if(swarms)
+        delete swarms;
     SwarmInfo def = SwarmInfo();
 
     swarms = new Swarm(def, *this->ship);
@@ -145,11 +156,28 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     if(debugMode){
         switch(event->key()){
         case(Qt::Key_C):
+        {
             // cycle through each cursor state
             int s = cursor.state;
             if(++s == END_OF_CURSOR_STATE)
                 s = 0; // loop back to zero (NORMAL STATE)
             cursor.setCursorState(static_cast<CURSOR_STATE>(s)); // assign the cursor state
+        }
+            break;
+        case(Qt::Key_Plus):
+            if(curStageNum + 1 >= c->getSwarmList().size())
+                break;
+            curStageNum++;
+            qDebug() << "Generating stage " << QString::number(curStageNum);
+            generateAliens(c->getSwarmList()[curStageNum]);
+            break;
+
+        case(Qt::Key_Minus):
+            if(curStageNum - 1 <= 0)
+                break;
+            curStageNum--;
+            qDebug() << "Generating stage " << QString::number(curStageNum);
+            generateAliens(c->getSwarmList()[curStageNum]);
             break;
         }
     }
@@ -445,7 +473,7 @@ void GameDialog::printDebugInfo(QPainter* p){
     QString str;
 
     // print keyboard hint
-    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [C] Change color | [P] Pause/Resume");
+    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [P] Pause/Resume | [-/+] Goto Prev/Next Stage");
 
     // print spaceship x, y
     str = "Spaceship [X:";

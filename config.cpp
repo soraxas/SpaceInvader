@@ -54,19 +54,21 @@ namespace game {
 
 Config* Config::s_configInstance = 0;
 
-Config::Config() : shipUseXwing(false){
+Config::Config() : totalStageNum(0), shipUseXwing(false){
     // GENERAL READING OF CONFIG FILE
     QFile c_file("../SpaceInvaders/config.txt");
     c_file.open(QIODevice::ReadOnly);
-
     QTextStream in(&c_file);
     initDefault();
+
+    // default swarms for stage 0 (legacy mode)
+    swarmListStages.push_back({});
+
     // READ IN CONFIG FOR CUSTOM SETTINGS
     while (!in.atEnd()) {
         // assumes ship first, but it's okay anyway [just read it]
         processShip(in);
     }
-
     // set the scaled width and height!
     this->SCALEDWIDTH = WIDTH * this->scale;
     this->SCALEDHEIGHT = HEIGHT * this->scale;
@@ -76,9 +78,11 @@ Config::Config() : shipUseXwing(false){
 
 // loops through all the swarm info and edits positions.
 void Config::scalePositions() {
-    for (SwarmInfo& s : swarmList) {
-        for (QPair<int, int> pos : s.positions) {
-            pos = qMakePair(pos.first * this->scale, pos.second * this->scale);
+    for(QList<SwarmInfo> swarmList : swarmListStages){
+        for (SwarmInfo& s : swarmList) {
+            for (QPair<int, int> pos : s.positions) {
+                pos = qMakePair(pos.first * this->scale, pos.second * this->scale);
+            }
         }
     }
 }
@@ -156,11 +160,18 @@ void Config::processShip(QTextStream& in) {
             if (l.toInt() != 0) {
                 frames = l.toInt();
             }
+        } else if (l.startsWith("[STAGE")) {
+            ++totalStageNum;
+            swarmListStages.push_back({});
         } else if (l.startsWith("[SWARM]")) {
             // reads a different header.
             processSwarm(in);
-            return;  // we already have default settings for ship so it's okay to just
-                     // return
+            while(!in.atEnd()){
+                // go to next stage
+                ++totalStageNum;
+                swarmListStages.push_back({});
+                processSwarm(in);
+            }
         } else if (l.startsWith("[SHIP]")) {
             // ignore [SHIP] line
         } else {
@@ -197,6 +208,10 @@ void Config::processSwarm(QTextStream& in) {
         // make some default values...
         if (l.isEmpty()) {
             continue;
+        } else if (l.startsWith("[STAGE")) {
+            // START OF STAGE 3! we create a new stage for it
+            saveSwarm(totalStageNum, type, positions, move, shoot); // save the remaining
+            return;
         } else if (l.startsWith("position=")) {
             // split by = and then by ,
             l = l.split("=").last();
@@ -224,11 +239,11 @@ void Config::processSwarm(QTextStream& in) {
             // reads the ship information, saves (possibly incomplete hence default)
             // swarm info
             processShip(in);
-            saveSwarm(type, positions, move, shoot);
+            saveSwarm(totalStageNum, type, positions, move, shoot);
             return;
         } else if (l.startsWith("[SWARM]")) {
             processSwarm(in);
-            saveSwarm(type, positions, move, shoot);
+            saveSwarm(totalStageNum, type, positions, move, shoot);
             return;
         } else {
             std::cout << "Incorrect key; check [SWARM] usage" << l.toStdString() << std::endl;
@@ -236,7 +251,7 @@ void Config::processSwarm(QTextStream& in) {
     }
 
     // reached end of file; SWARM is last object and hasn't saved itself yet
-    saveSwarm(type, positions, move, shoot);
+    saveSwarm(totalStageNum, type, positions, move, shoot);
 }
 
 // Process moves for swarms
@@ -276,11 +291,11 @@ void Config::processPairs(QStringList list, QList<QPair<int, int>>& positions) {
     }
 }
 
-void Config::saveSwarm(
-        QString type, QList<QPair<int, int>> positions, QStringList move, int shoot) {
+void Config::saveSwarm(unsigned stageNum,
+                       QString type, QList<QPair<int, int>> positions, QStringList move, int shoot) {
     // only save swarm if there is at least 1 position!
     if (positions.size() > 0) {
-        swarmList.append(SwarmInfo(type, positions, move, shoot));
+        swarmListStages[stageNum].append(SwarmInfo(type, positions, move, shoot));
     }
 }
 
@@ -323,8 +338,8 @@ int Config::get_frames() {
     return this->frames;
 }
 
-QList<SwarmInfo> Config::getSwarmList() {
-    return this->swarmList;
+std::vector<QList<SwarmInfo>> Config::getSwarmList() {
+    return this->swarmListStages;
 }
 
 int Config::get_SCALEDWIDTH() {
