@@ -21,8 +21,6 @@ public:
     void setCursorState(CURSOR_STATE state);
 
     // ==== VARIABLES ====
-    bool leftPressing; // keep track if left button is currently pressing
-    bool rightPressing; // keep track if right button is currently pressing
     int radius; // radius of the cursor
     CURSOR_STATE state;
     CursorState* currentState;

@@ -7,12 +7,9 @@
 #define ENERGYRESTORE_PER_TICK 0.8
 #define ENERGYRESTORE_PER_TICK_FULLYDRAINED 0.5
 
-
 namespace game{
 FighterState::FighterState(Cursor* c, GameDialog* gDialog) : game::CursorState(c, gDialog)
-{
-
-}
+{}
 
 void FighterState::processMouseEvent(QMouseEvent *event){
     // update cursor location
@@ -20,8 +17,8 @@ void FighterState::processMouseEvent(QMouseEvent *event){
     cursorY = event->pos().y();
 }
 
-void FighterState::setCursorDisplay(bool normal){
-    if(normal){
+void FighterState::setCursorDisplay(bool normalState){
+    if(normalState){
         // set the cursor as the TIE Fighter image
         QPixmap pixmap;
         pixmap.load(":/Images/ship_tiefighter.png");
@@ -36,7 +33,7 @@ void FighterState::setCursorDisplay(bool normal){
 
 void FighterState::processMousePress(QMouseEvent* event){
     if(event->button() == Qt::LeftButton){
-        cursor->leftPressing = true; // to keep track the state
+        leftPressing = true; // to keep track the state
         if(!gDialog->statusBar.plasmaDrained) // only switch if currently it can still use plasma
             setCursorDisplay(false);
     }
@@ -44,7 +41,7 @@ void FighterState::processMousePress(QMouseEvent* event){
 
 void FighterState::processMouseRelease(QMouseEvent* event){
     if(event->button() == Qt::LeftButton){
-        cursor->leftPressing = false; // to keep track the state
+        leftPressing = false; // to keep track the state
         setCursorDisplay(true);
     }
 }
@@ -55,7 +52,7 @@ void FighterState::updateCursorDisplay(){
 
 void FighterState::update(){
     // only delete nearby bullet when left button is held
-    if(cursor->leftPressing && !gDialog->statusBar.plasmaDrained){
+    if(leftPressing && !gDialog->statusBar.plasmaDrained){
         for (unsigned i = 0; i < gDialog->bullets.size(); i++) {
             Bullet* b = gDialog->bullets[i];
             double dist = qSqrt(qPow(b->get_y() - cursorY,2) + qPow(b->get_x() - cursorX,2));
@@ -88,7 +85,7 @@ void FighterState::update(){
             if(gDialog->statusBar.plasmaEnergy >= 100){
                 gDialog->statusBar.plasmaEnergy = 100;
                 gDialog->statusBar.plasmaDrained = false;
-                if(cursor->leftPressing){
+                if(leftPressing){
                     // reset the cursor
                     setCursorDisplay(false);
                 }
@@ -97,7 +94,4 @@ void FighterState::update(){
     }
 }
 
-void FighterState::draw(QPainter* p){
-    return;
-}
 }

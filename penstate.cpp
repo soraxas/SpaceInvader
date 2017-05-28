@@ -19,13 +19,13 @@ void PenState::processMouseEvent(QMouseEvent *event){
 
 void PenState::processMousePress(QMouseEvent* event){
     if(event->button() == Qt::LeftButton){
-        cursor->leftPressing = true; // to keep track the state
+        leftPressing = true; // to keep track the state
     }
 }
 
 void PenState::processMouseRelease(QMouseEvent* event){
     if(event->button() == Qt::LeftButton){
-        cursor->leftPressing = false; // to keep track the state
+        leftPressing = false; // to keep track the state
     }
 }
 
@@ -42,7 +42,7 @@ void PenState::updateCursorDisplay(){
 
 void PenState::update(){
     // try adding block to the existing screen
-    if(cursor->leftPressing){
+    if(leftPressing){
         // if all energy are used, revert back to TIE-fighter state
         if(gDialog->statusBar.barrierEnergy <= 0){
             cursor->setCursorState(FIGHTER);
@@ -68,9 +68,5 @@ void PenState::update(){
             gDialog->statusBar.barrierEnergy = 0;
     }
 }
-
-void PenState::draw(QPainter* p){
-}
-
 
 }

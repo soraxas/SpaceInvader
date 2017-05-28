@@ -30,6 +30,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->frames = c->get_frames();
     this->playerOverride = false;
     this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
+    timerModifier = 1.0;
 
     // MENU
     QList<QPair<QString, int>> dummy;
@@ -66,7 +67,7 @@ GameDialog::GameDialog(QWidget* parent)
     paused = false;
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
-    timer->start(this->frames);
+    timer->start(static_cast<int>(this->frames * timerModifier));
 
     // track mouse for extension
     this->setMouseTracking(true);
@@ -108,7 +109,7 @@ void GameDialog::pauseStart() {
         // start game
         this->paused = false;
         this->menu->displayMenu(paused);
-        this->timer->start(frames);
+        this->timer->start(static_cast<int>(frames * timerModifier));
     } else {
         this->paused = true;
         this->menu->displayMenu(paused);
@@ -150,6 +151,16 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
         break;
     case(Qt::Key_F1):
         debugMode = !debugMode;
+        break;
+    case(Qt::Key_F2):
+        timerModifier += 0.1;
+        timer->start(c->get_frames() * timerModifier);
+        qDebug() << QString::number(1/timerModifier);
+        break;
+    case(Qt::Key_F3):
+        timerModifier -= 0.1;
+        timer->start(c->get_frames() * timerModifier);
+        qDebug() << QString::number(1/timerModifier);
         break;
     }
 
@@ -391,9 +402,6 @@ void GameDialog::paintEvent(QPaintEvent*) {
     for(BarrierBlock b: barriers)
         b.draw(&painter);
 
-    // draw anything that cursor want to
-    cursor.getCurState()->draw(&painter);
-
     // draw explosions
     std::vector<Explosion>::iterator it = explosions.begin();
     while (it != explosions.end()) {
@@ -474,7 +482,10 @@ void GameDialog::printDebugInfo(QPainter* p){
     if(!debugMode)
         return;
 
+    QFont f = p->font();
+    f.setPointSize(12);
     p->setPen(Qt::yellow);
+    p->setFont(f);
     int line_height = 18;
     QString str;
 

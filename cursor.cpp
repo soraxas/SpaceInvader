@@ -1,7 +1,7 @@
 #include "cursor.h"
 
 namespace game{
-Cursor::Cursor(GameDialog* gDialog) : leftPressing(false), rightPressing(false), radius(5)
+Cursor::Cursor(GameDialog* gDialog) : radius(5)
 {
     // the normal state for the cursor (default)
     CursorState* normal= new NormalState(this, gDialog);

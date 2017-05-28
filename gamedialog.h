@@ -71,6 +71,7 @@ public:
     Menu* menu;
 
     bool debugMode;
+    double timerModifier;
     // score
     int gameScore;  // this run's score.
     std::vector<Explosion> explosions;

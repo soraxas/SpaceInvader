@@ -22,5 +22,6 @@ public:
     virtual void remove(AlienBase* toDelete) = 0;
     virtual QList<Bullet*> react() = 0;
     virtual void paint(QPainter& painter) = 0;
+    // need to be override so the position setting of alien would be correct
 };
 }

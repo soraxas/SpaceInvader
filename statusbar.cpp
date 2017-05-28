@@ -43,7 +43,7 @@ void StatusBar::buildBrush(){
 
     // determine location for barrier bar
     barrierBar = QRect(gd->SCALEDWIDTH*0.55, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.3,
-                      gd->SCALEDWIDTH*0.175, gd->STATUSBARHEIGHT*0.6);
+                       gd->SCALEDWIDTH*0.175, gd->STATUSBARHEIGHT*0.6);
 
     // build brush for the barrier bar
     QLinearGradient barrierbarBrush(0, gd->SCALEDHEIGHT, 0, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT);
@@ -58,7 +58,7 @@ void StatusBar::draw(QPainter* p){
     p->setPen(Qt::NoPen);
 
     //////////////////////////////////////////
-    //////      STATUS BAR
+    //////      STATUS BAR BACKGROUND
     //////////////////////////////////////////
     // first draw the background of status bar
     p->setBrush(statusBarBrush);
@@ -108,6 +108,29 @@ void StatusBar::draw(QPainter* p){
     // if barrier bar is fully drained, draw a transparent rect represent it cannot be used currently
     if(barrierEnergy <= 0)
         p->fillRect(containerOuter, QBrush(QColor(0, 0, 0, 128)));
+
+    //////////////////////////////////////////
+    //////      CURRENT SCORE
+    //////////////////////////////////////////
+    p->setPen(Qt::white);
+    QFont f("monospace");
+    f.setStyleHint(QFont::TypeWriter);
+    f.setFamily("courier");
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.5));
+
+    p->setFont(f);
+    p->drawText(gd->SCALEDWIDTH*0.05, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.8, QString::number(gd->gameScore));
+
+    //    // print keyboard hint
+    //    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [P] Pause/Resume | [-/+] Goto Prev/Next Stage");
+
+    //    // print spaceship x, y
+    //    str = "Spaceship [X:";
+    //    str += QString::number(ship->get_x());
+    //    str += " Y:";
+    //    str += QString::number(ship->get_y()) + "]";
+    //    p->drawText(20, line_height * 2, str);
+
 }
 
 void StatusBar::update(){

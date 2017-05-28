@@ -26,6 +26,17 @@ void Alien::move(QString move) {
     }
 }
 
+//
+void Alien::set_y(int y) {
+    if (y > boundaryY - this->image.height()) {
+        this->y = boundaryY - this->image.height();
+    } else if (y < 0 ) {
+        this->y = 0;
+    } else {
+        this->y = y;
+    }
+}
+
 // returns a list of 1 bullet (perhaps you could change this later)
 QList<Bullet*> Alien::shoot(QString type) {
     // randomly generates a diagonal bullet - in future, you could have

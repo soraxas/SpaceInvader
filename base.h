@@ -3,16 +3,14 @@
 
 namespace game {
 class Base {
-private:
-    QPixmap image; //this should be made to be a flyweight in future
-    double scale;
-    int x;
-    int y;
-
 protected:
+    QPixmap image; //this should be made to be a flyweight in future
     int boundaryX;
     int boundaryY;
     int minX;
+    double scale;
+    int x;
+    int y;
 
 public:
     // A BASE OBJECT CAN START ANYWHERE, WITH AN IMAGE AND SCALE.
@@ -29,8 +27,9 @@ public:
 
     // Setters
     void set_image(QPixmap image);
-    void set_x(int x);
-    void set_y(int y);
+    // need to be virtual so the position setting of alien would be correct
+    virtual void set_x(int x);
+    virtual void set_y(int y);
 
     // Getters
     const QPixmap& get_image() const;

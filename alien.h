@@ -23,6 +23,7 @@ public:
     bool add(AlienBase* toAdd);
     void remove(AlienBase* toDelete);
     virtual void paint(QPainter& painter);
+    void set_y(int y);
 
 protected:
     int velocity;
