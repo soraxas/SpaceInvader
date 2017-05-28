@@ -11,6 +11,8 @@
 #include "explosion.h"
 #include "barrierblock.h"
 #include "statusbar.h"
+#include "gamemenu.h"
+#include "powerup.h"
 
 #include "command.h"
 
@@ -76,9 +78,15 @@ public:
     int gameScore;  // this run's score.
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
+    std::vector<Powerup> powerups;
     StatusBar statusBar;
     Config* c;
+
+    // Helper function
+    static int randInt(int low, int high);
+    static void SeedRandInt();
 private:
+    GameMenu gameMenu;
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
     int curStageNum;
@@ -92,6 +100,7 @@ public slots:
     // menus
     void showScore();
 };
+
 }
 
 #endif // end GAMEDIALOG

@@ -11,10 +11,12 @@
 #include <vector>
 #include <QCursor>
 #include <QtMath>
+#include <QTime>
 
 #define CURSOR_BASE_RADIUS 50
 #define STATUS_BAR_HEIGHT 100
 
+#define POWERUP_DROP_RATE 100
 
 namespace game {
 
@@ -31,6 +33,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->playerOverride = false;
     this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
     timerModifier = 1.0;
+    GameDialog::SeedRandInt(); // seed the random number generator
 
     // MENU
     QList<QPair<QString, int>> dummy;
@@ -39,6 +42,10 @@ GameDialog::GameDialog(QWidget* parent)
     // EXTENSION STAGE 1 PART 1 - RESCALE GAME SCREEN FOR SHIP SIZE
     this->setFixedWidth(SCALEDWIDTH);
     this->setFixedHeight(SCALEDHEIGHT + STATUSBARHEIGHT);
+    // resize menu as well
+    gameMenu.setFixedWidth(SCALEDWIDTH*0.6);
+    gameMenu.setFixedHeight((SCALEDHEIGHT + STATUSBARHEIGHT)*0.6);
+
     // SHIP
     QPixmap ship;
     if(c->shipUseXwing){
@@ -106,11 +113,13 @@ void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
 
 void GameDialog::pauseStart() {
     if (this->paused) {
+        gameMenu.hide();
         // start game
         this->paused = false;
         this->menu->displayMenu(paused);
         this->timer->start(static_cast<int>(frames * timerModifier));
     } else {
+        gameMenu.show();
         this->paused = true;
         this->menu->displayMenu(paused);
         this->timer->stop();
@@ -132,6 +141,7 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
 
     switch(event->key()){
     case(Qt::Key_P):
+    case(Qt::Key_Escape):
         pauseStart();
         break;
     case(Qt::Key_Left):
@@ -280,6 +290,9 @@ void GameDialog::nextFrame() {
         // update explosions
         for(Explosion& e: explosions)
             e.nextFrame();
+        // update powerup
+        for(Powerup& p : powerups)
+            p.update();
         // update status bar
         statusBar.update();
 
@@ -395,6 +408,10 @@ void GameDialog::paintEvent(QPaintEvent*) {
     // loop through each alien swarm and draw
     paintSwarm(painter, swarms);
 
+    // Draw all the PowerUps
+    for(Powerup p : powerups)
+        p.draw(&painter);
+
     // BULLETS last so they draw over everything
     paintBullets(painter);
 
@@ -426,19 +443,26 @@ void GameDialog::paintEvent(QPaintEvent*) {
 // returns the score from the deleted hit object.
 // Returns 0 if nothing hit, -ve if ship is hit.
 int GameDialog::get_collided(Bullet*& b, AlienBase*& root) {
-    int totalScore = 0;
-
+    int score = 0;
     // if it's an enemy bullet, then don't look at the swarm.
     if (!b->isFriendly()) {
         // check it hits the player ship
         if (b->collides(*this->ship)) {
-            totalScore = -1;
+            return -1;
 
         }  // future; add barriers here.
     } else {
-        totalScore += get_collided_swarm(b, root);
+        score = get_collided_swarm(b, root);
+
+        if(score > 0){
+            int r = c->get_scale() * 15;
+            // randomly generate a powerup after killing an alien
+            if(GameDialog::randInt(0, 100) > (100 - POWERUP_DROP_RATE)){ // 35% drop rate
+                powerups.push_back(Powerup::generateRandomPowerup(b->get_x(), b->get_y() - r*2, r));
+            }
+        }
     }
-    return totalScore;
+    return score;
 }
 
 // helper function, recursively searches swarms.
@@ -505,5 +529,22 @@ void GameDialog::printDebugInfo(QPainter* p){
         str += "--PAUSED--";
     p->drawText(20, line_height * 3, str);
 }
+
+// HELPER FUNCTION
+int GameDialog::randInt(int low, int high)
+{
+    // Random number between low and high
+    return qrand() % ((high + 1) - low) + low;
+}
+
+
+void GameDialog::SeedRandInt()
+{
+    // seed the random int
+    QTime time = QTime::currentTime();
+    qsrand((uint)time.msec());
+}
+
+
 
 }

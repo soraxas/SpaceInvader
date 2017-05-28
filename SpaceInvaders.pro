@@ -49,7 +49,9 @@ SOURCES += main.cpp\
     barrierblock.cpp \
     penstate.cpp \
     unittestspaceinvader.cpp \
-    statusbar.cpp
+    statusbar.cpp \
+    gamemenu.cpp \
+    powerup.cpp
 
 HEADERS  += \
     base.h \
@@ -77,9 +79,12 @@ HEADERS  += \
     penstate.h \
     unittestspaceinvader.h \
     command.h \
-    statusbar.h
+    statusbar.h \
+    gamemenu.h \
+    powerup.h
 
-FORMS    += dialog.ui
+FORMS    += dialog.ui \
+    gamemenu.ui
 
 RESOURCES += \
     resources.qrc
