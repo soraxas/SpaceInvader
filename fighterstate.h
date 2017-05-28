@@ -17,6 +17,10 @@ public:
     void updateCursorDisplay();
     void draw(QPainter* p);
     void update();
+
+
+    // set the cursor display as normal (or plasma ball state)
+    void setCursorDisplay(bool normal);
 };
 
 }

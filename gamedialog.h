@@ -10,6 +10,7 @@
 #include "cursor.h"
 #include "explosion.h"
 #include "barrierblock.h"
+#include "statusbar.h"
 
 #include "command.h"
 
@@ -57,6 +58,7 @@ public:
     const int HEIGHT = 600;
     int SCALEDWIDTH;
     int SCALEDHEIGHT;
+    int STATUSBARHEIGHT;
 
     // collision...
     int get_collided_swarm(Bullet*& b, AlienBase*& root);
@@ -73,6 +75,7 @@ public:
     int gameScore;  // this run's score.
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
+    StatusBar statusBar;
     Config* c;
 private:
     bool updateBullets_barrierChkHelper(int x, int y);

@@ -13,18 +13,20 @@
 #include <QtMath>
 
 #define CURSOR_BASE_RADIUS 50
+#define STATUS_BAR_HEIGHT 100
 
 
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false),
-      gameScore(0), bg(500, 500), cursor(this) {
+      gameScore(0), statusBar(this), bg(500, 500), cursor(this) {
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
     swarms = NULL;
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
+    STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
     this->frames = c->get_frames();
     this->playerOverride = false;
     this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
@@ -35,7 +37,7 @@ GameDialog::GameDialog(QWidget* parent)
 
     // EXTENSION STAGE 1 PART 1 - RESCALE GAME SCREEN FOR SHIP SIZE
     this->setFixedWidth(SCALEDWIDTH);
-    this->setFixedHeight(SCALEDHEIGHT);
+    this->setFixedHeight(SCALEDHEIGHT + STATUSBARHEIGHT);
     // SHIP
     QPixmap ship;
     if(c->shipUseXwing){
@@ -59,6 +61,7 @@ GameDialog::GameDialog(QWidget* parent)
 
     // SET BACKGROUND
     setStyleSheet("background-color: #000000;");
+    statusBar.buildBrush();
 
     paused = false;
     timer = new QTimer(this);
@@ -67,8 +70,6 @@ GameDialog::GameDialog(QWidget* parent)
 
     // track mouse for extension
     this->setMouseTracking(true);
-
-
 
     update();
 
@@ -268,6 +269,8 @@ void GameDialog::nextFrame() {
         // update explosions
         for(Explosion& e: explosions)
             e.nextFrame();
+        // update status bar
+        statusBar.update();
 
         // loop through each alien swarm, move and calculated collisions
         swarms->move("");  // recursive.
@@ -401,6 +404,9 @@ void GameDialog::paintEvent(QPaintEvent*) {
         (*it).draw(&painter);
         ++it;
     }
+
+    // draw status bar
+    statusBar.draw(&painter);
 
     // draw debug info if needed
     if(debugMode)

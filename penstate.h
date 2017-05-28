@@ -18,6 +18,7 @@ public:
     void updateCursorDisplay();
     void draw(QPainter* p);
     void update();
+
 private:
     unsigned blockDimension;
 };

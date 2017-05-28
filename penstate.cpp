@@ -3,6 +3,7 @@
 #include <QtMath>
 
 #define BLOCK_DIMENSION 30
+#define ENERGYDRAIN_PER_PLACEMENT 3
 
 namespace game {
 PenState::PenState(Cursor* c, GameDialog* gDialog) : game::CursorState(c, gDialog)
@@ -34,11 +35,20 @@ void PenState::updateCursorDisplay(){
     pixmap.load(":/Images/pen.png");
     pixmap = pixmap.scaledToWidth(cursor->radius*2);
     gDialog->setCursor(QCursor(pixmap, 0, pixmap.height()));
+
+    // initialise the energy amount in status bar
+    gDialog->statusBar.barrierEnergy = 100;
 }
 
 void PenState::update(){
     // try adding block to the existing screen
     if(cursor->leftPressing){
+        // if all energy are used, revert back to TIE-fighter state
+        if(gDialog->statusBar.barrierEnergy <= 0){
+            cursor->setCursorState(FIGHTER);
+            return;
+        }
+
         // get the current cursor location that is aligned to the grid of block dimension
         int x = cursorX - (cursorX % blockDimension);
         int y = cursorY - (cursorY % blockDimension);
@@ -51,6 +61,11 @@ void PenState::update(){
 
         // None exists yet, add the block to the location
         gDialog->barriers.push_back(BarrierBlock(x, y, blockDimension));
+
+        // drain the energy by this amount.
+        gDialog->statusBar.barrierEnergy -= ENERGYDRAIN_PER_PLACEMENT;
+        if(gDialog->statusBar.barrierEnergy < 0)
+            gDialog->statusBar.barrierEnergy = 0;
     }
 }
 

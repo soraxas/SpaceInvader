@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     explosion.cpp \
     barrierblock.cpp \
     penstate.cpp \
-    unittestspaceinvader.cpp
+    unittestspaceinvader.cpp \
+    statusbar.cpp
 
 HEADERS  += \
     base.h \
@@ -75,7 +76,8 @@ HEADERS  += \
     barrierblock.h \
     penstate.h \
     unittestspaceinvader.h \
-    command.h
+    command.h \
+    statusbar.h
 
 FORMS    += dialog.ui
 
