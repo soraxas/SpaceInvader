@@ -11,6 +11,8 @@
 #include "explosion.h"
 #include "barrierblock.h"
 
+#include "command.h"
+
 #include <QDialog>
 #include <QSoundEffect>
 #include <QWidget>
@@ -71,15 +73,14 @@ public:
     int gameScore;  // this run's score.
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
+
 private:
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
     bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
     std::map<int,bool> pressedKeys;
-
     Background bg;
-    // cursor for various functions
-    Cursor cursor;
+    Cursor cursor; // cursor for various functions
 
 public slots:
     void nextFrame();

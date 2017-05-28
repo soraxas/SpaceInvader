@@ -13,10 +13,6 @@ public:
     void processMouseEvent(QMouseEvent *event);
     void processMousePress(QMouseEvent* event);
     void processMouseRelease(QMouseEvent* event);
-    void leftClickEvent();
-    void leftReleaseEvent();
-    void rightClickEvent();
-    void rightReleaseEvent();
 
     void updateCursorDisplay();
     void draw(QPainter* p);

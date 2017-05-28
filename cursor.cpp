@@ -13,7 +13,7 @@ Cursor::Cursor(GameDialog* gDialog) : leftPressing(false), rightPressing(false),
     CursorState* pen = new PenState(this, gDialog);
     cursorStatesList[PEN] = pen;
 
-    setCursorState(NORMAL);
+    setCursorState(NORMAL); // default as normal
 }
 
 Cursor::~Cursor(){
@@ -35,18 +35,4 @@ void Cursor::setCursorState(CURSOR_STATE state){
     currentState->updateCursorDisplay();
 }
 
-void Cursor::processMousePress(QMouseEvent* event){
-    if(event->button() == Qt::LeftButton)
-        leftPressing = true; // to keep track the state
-
-    // let the current mouse state process this event
-    currentState->leftClickEvent();
-}
-
-void Cursor::processMouseRelease(QMouseEvent* event){
-    if(event->button() == Qt::LeftButton)
-        leftPressing = false; // to keep track the state
-
-    currentState->leftReleaseEvent();
-}
 }

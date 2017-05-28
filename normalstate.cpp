@@ -10,17 +10,12 @@ NormalState::NormalState(Cursor* c, GameDialog* gDialog) : game::CursorState(c, 
 void NormalState::processMouseEvent(QMouseEvent *event){
 }
 
-void NormalState::leftClickEvent(){
+void NormalState::processMousePress(QMouseEvent* event){
 }
 
-void NormalState::leftReleaseEvent(){
+void NormalState::processMouseRelease(QMouseEvent* event){
 }
 
-void NormalState::rightClickEvent(){
-}
-
-void NormalState::rightReleaseEvent(){
-}
 
 void NormalState::updateCursorDisplay(){
     // set the cursor as the default

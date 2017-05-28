@@ -16,16 +16,16 @@ void PenState::processMouseEvent(QMouseEvent *event){
     cursorY = event->pos().y();
 }
 
-void PenState::leftClickEvent(){
+void PenState::processMousePress(QMouseEvent* event){
+    if(event->button() == Qt::LeftButton){
+        cursor->leftPressing = true; // to keep track the state
+    }
 }
 
-void PenState::leftReleaseEvent(){
-}
-
-void PenState::rightClickEvent(){
-}
-
-void PenState::rightReleaseEvent(){
+void PenState::processMouseRelease(QMouseEvent* event){
+    if(event->button() == Qt::LeftButton){
+        cursor->leftPressing = false; // to keep track the state
+    }
 }
 
 void PenState::updateCursorDisplay(){

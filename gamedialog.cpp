@@ -71,6 +71,7 @@ GameDialog::GameDialog(QWidget* parent)
 GameDialog::~GameDialog() {
     delete ship;
     delete timer;  // optional, don't have to do this apparently
+    delete menu;
 
     // loop though swarms to delete aliens
     delete swarms;  // recursively deletes itself.
@@ -176,10 +177,10 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
 
 
 void GameDialog::mousePressEvent(QMouseEvent* event){
-    cursor.processMousePress(event);
+    cursor.getCurState()->processMousePress(event);
 }
 void GameDialog::mouseReleaseEvent(QMouseEvent* event){
-    cursor.processMouseRelease(event);
+    cursor.getCurState()->processMouseRelease(event);
 }
 void GameDialog::mouseMoveEvent(QMouseEvent* event){
     cursor.getCurState()->processMouseEvent(event);

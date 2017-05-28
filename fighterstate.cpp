@@ -14,23 +14,24 @@ void FighterState::processMouseEvent(QMouseEvent *event){
     cursorY = event->pos().y();
 }
 
-void FighterState::leftClickEvent(){
-    // set the cursor as the TIE Fighter image
-    QPixmap pixmap;
-    pixmap.load(":/Images/PlasmaBall.png");
-    gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2 * 1.3), -1, -1));
+void FighterState::processMousePress(QMouseEvent* event){
+    if(event->button() == Qt::LeftButton){
+        cursor->leftPressing = true; // to keep track the state
+        // set the cursor as the plasma ball
+        QPixmap pixmap;
+        pixmap.load(":/Images/PlasmaBall.png");
+        gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2 * 1.3), -1, -1));
+    }
 }
 
-void FighterState::leftReleaseEvent(){
-    // set the cursor as the TIE Fighter image
-    QPixmap pixmap;
-    pixmap.load(":/Images/ship_tiefighter.png");
-    gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2), -1, -1));
-}
-
-void FighterState::rightClickEvent(){
-}
-void FighterState::rightReleaseEvent(){
+void FighterState::processMouseRelease(QMouseEvent* event){
+    if(event->button() == Qt::LeftButton){
+        cursor->leftPressing = false; // to keep track the state
+        // set the cursor as the TIE Fighter image
+        QPixmap pixmap;
+        pixmap.load(":/Images/ship_tiefighter.png");
+        gDialog->setCursor(QCursor(pixmap.scaledToWidth(cursor->radius*2), -1, -1));
+    }
 }
 
 void FighterState::updateCursorDisplay(){

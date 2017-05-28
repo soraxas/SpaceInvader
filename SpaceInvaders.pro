@@ -5,7 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui multimedia\
-            gui
+            gui\
+            testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -46,7 +47,8 @@ SOURCES += main.cpp\
     normalstate.cpp \
     explosion.cpp \
     barrierblock.cpp \
-    penstate.cpp
+    penstate.cpp \
+    unittestspaceinvader.cpp
 
 HEADERS  += \
     base.h \
@@ -71,7 +73,9 @@ HEADERS  += \
     normalstate.h \
     explosion.h \
     barrierblock.h \
-    penstate.h
+    penstate.h \
+    unittestspaceinvader.h \
+    command.h
 
 FORMS    += dialog.ui
 

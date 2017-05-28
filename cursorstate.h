@@ -14,10 +14,8 @@ public:
         virtual ~CursorState() {}
 
         virtual void processMouseEvent(QMouseEvent* event) = 0;
-        virtual void leftClickEvent() = 0;
-        virtual void leftReleaseEvent() = 0;
-        virtual void rightClickEvent() = 0;
-        virtual void rightReleaseEvent() = 0;
+        virtual void processMousePress(QMouseEvent* event) = 0;
+        virtual void processMouseRelease(QMouseEvent* event) = 0;
 
         virtual void updateCursorDisplay() = 0;
         virtual void update() = 0; // update any logic
