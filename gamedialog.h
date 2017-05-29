@@ -22,8 +22,6 @@
 #include <vector>
 #include <QMouseEvent>
 
-
-
 namespace game {
 
 class GameDialog : public QDialog {
@@ -73,18 +71,20 @@ public:
     Menu* menu;
     int countAliens(AlienBase* root);
 
+    // Game Settings
     bool debugMode;
-    double timerModifier;
-    // score
+    double timerModifier;    
     int gameScore;  // this run's score.
+    bool legacyMode; // indicates if the game is running in the Stage 2 version
+    int curStageNum;
+
+    // internal game management
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
     std::vector<Powerup> powerups;
     LaserBeam laserBeam;
     StatusBar statusBar;
     Config* c;
-    bool legacyMode; // indicates if the game is running in the Stage 2 version
-    int curStageNum;
 
     // Helper function
     static int randInt(int low, int high);

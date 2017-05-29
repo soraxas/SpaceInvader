@@ -3,7 +3,7 @@
 #include "config.h"
 #define COOLDOWN 15
 #define SHIPWIDTH 80
-#define MACHINE_GUN_SHOOT_RATE 0.12
+#define MACHINE_GUN_SHOOT_RATE 0.001
 
 namespace game {
 Ship::Ship(QPixmap image, double scale, int x, int y)

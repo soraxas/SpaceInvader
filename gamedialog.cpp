@@ -531,12 +531,19 @@ void GameDialog::paintSwarm(QPainter& painter, AlienBase*& root) {
 //check if any aliens based off the alien root are crashing with the player ship.
 void GameDialog::checkSwarmCollisions(AlienBase *&root)
 {
-    for (AlienBase* child : root->getAliens()) {
+    QList<AlienBase*> childList = root->getAliens();
+    for (int i = 0; i < childList.size(); ++i) {
         // if the child is a leaf (i.e., an alien that has no children), check for collisions.
-        const QList<AlienBase*>& list = child->getAliens();
+        const QList<AlienBase*>& list = childList[i]->getAliens();
         if (list.size() == 0) {  // leaf
+            if(dynamic_cast<Swarm*>(childList[i]) != NULL){
+                // detele empty swarm list
+                root->remove(childList[i]);
+                continue;
+            }
+
             // check if it is crashing into the player ship
-            if (child->collides(*this->ship)) {
+            if (childList[i]->collides(*this->ship)) {
                 // DEAD SHIP AGAIN
                 if(legacyMode)
                     close();
@@ -546,7 +553,7 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
                                                ship->get_image().width()*1.4, ShipExplosion));
             }
         } else {
-            checkSwarmCollisions(child);
+            checkSwarmCollisions(childList[i]);
         }
     }
 }
@@ -656,7 +663,7 @@ int GameDialog::get_collided_swarm(Bullet*& b, AlienBase*& root) {
             // if it's another swarm, recurse down the tree
             totalScore += get_collided_swarm(b, child);
             // if something was hit, score > 0
-            if (child->getAliens().size() == 0 && (totalScore > 0 || dynamic_cast<Swarm*>(child) != NULL)) {
+            if (child->getAliens().size() == 0 && totalScore > 0) {
                 // some children shoot more bullets when they die.
                 // ask child for reaction when you're going to delete them
                 addBullets(child->react());
