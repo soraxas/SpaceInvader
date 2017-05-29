@@ -1,7 +1,7 @@
 #include "explosion.h"
 #include <QString>
 
-#define ALIEN_EXPLOSION_IMAGES_NUM 7
+#define SMALL_EXPLOSION_IMAGES_NUM 10
 #define SHIP_EXPLOSION_IMAGES_NUM 24
 
 Explosion::Explosion(int x, int y, int scaledToWidth, ExplosionType type) : x(x), y(y)
@@ -12,10 +12,10 @@ Explosion::Explosion(int x, int y, int scaledToWidth, ExplosionType type) : x(x)
 
     // load all image to array
     switch (type) {
-    case(AlienExplosion):
-        for (int i = 0; i < ALIEN_EXPLOSION_IMAGES_NUM; ++i){
+    case(SmallExplosion):
+        for (int i = 0; i < SMALL_EXPLOSION_IMAGES_NUM; ++i){
             QPixmap img;
-            QString path = ":/Images/alienExplosion_" + QString::number(i) + ".png";
+            QString path = ":/Images/smallExplosion_" + QString::number(i) + ".gif";
             img.load(path);
             img = img.scaledToWidth(static_cast<int>(scaledToWidth * 1.5));
             explosionImage.push_back(img);

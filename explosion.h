@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <vector>
 
-enum ExplosionType{AlienExplosion, ShipExplosion};
+enum ExplosionType{SmallExplosion, ShipExplosion};
 
 class Explosion
 {

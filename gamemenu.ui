@@ -17,7 +17,7 @@
    <string>Dialog</string>
   </property>
   <property name="windowOpacity">
-   <double>0.850000000000000</double>
+   <double>0.950000000000000</double>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="0">

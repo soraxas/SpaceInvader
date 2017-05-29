@@ -18,4 +18,11 @@ public:
     int get_bullet_velocity() const;
     bool isFriendly();
 };
+
+// define a simple struct that descript a laster bean
+struct LaserBeam {
+    int originX, originY;
+    int width;
+    bool exists;
+};
 }

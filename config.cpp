@@ -125,8 +125,7 @@ void Config::processShip(QTextStream& in) {
     while (!in.atEnd()) {
         QString l = in.readLine();
         l = l.trimmed();
-
-        if (l.isEmpty()) {
+        if (l.isEmpty() || l.startsWith("#")) {
             continue;
         } else if (l.startsWith("ship=xwing")) {
             this->shipUseXwing = true;

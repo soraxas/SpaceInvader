@@ -60,6 +60,12 @@ void FighterState::update(){
                 delete b;
                 gDialog->bullets.erase(gDialog->bullets.begin() + i);
                 i--;
+
+                // create explosion
+                gDialog->explosions.push_back(Explosion(b->get_x()+b->get_image().width()/2,
+                                               b->get_y()+b->get_image().height()/5,
+                                               b->get_image().height()*1.4, SmallExplosion));
+
                 // everytime it destory a bullet, it drains a bit of energy
                 gDialog->statusBar.plasmaEnergy -= ENERGYDRAIN_PER_HIT;
             }

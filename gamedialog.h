@@ -71,6 +71,7 @@ public:
     bool paused;
     void pauseStart();
     Menu* menu;
+    int countAliens(AlienBase* root);
 
     bool debugMode;
     double timerModifier;
@@ -79,8 +80,11 @@ public:
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
     std::vector<Powerup> powerups;
+    LaserBeam laserBeam;
     StatusBar statusBar;
     Config* c;
+    bool legacyMode; // indicates if the game is running in the Stage 2 version
+    int curStageNum;
 
     // Helper function
     static int randInt(int low, int high);
@@ -89,7 +93,6 @@ private:
     GameMenu gameMenu;
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
-    int curStageNum;
     bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
     std::map<int,bool> pressedKeys;
     Background bg;

@@ -23,6 +23,7 @@ public:
     // ==== VARIABLES ====
     int radius; // radius of the cursor
     CURSOR_STATE state;
+    CURSOR_STATE preState; // keep a record of previous state
     CursorState* currentState;
     std::map<CURSOR_STATE, CursorState*> cursorStatesList;
 };

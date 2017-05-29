@@ -12,23 +12,31 @@
 #include <QCursor>
 #include <QtMath>
 #include <QTime>
+#include <stack>
 
 #define CURSOR_BASE_RADIUS 50
 #define STATUS_BAR_HEIGHT 100
 
-#define POWERUP_DROP_RATE 100
+#define POWERUP_DROP_RATE 100 //15
 
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false),
       gameScore(0), statusBar(this), bg(500, 500), cursor(this) {
+    legacyMode = false;
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
+    STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
+    if(c->getSwarmList().size() <= 1){
+        // it is an old-style config file. Use legacy Mode
+        legacyMode = true;
+        STATUSBARHEIGHT = 0;
+    }
+    laserBeam.exists = false;
     swarms = NULL;
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
-    STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
     this->frames = c->get_frames();
     this->playerOverride = false;
     this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
@@ -48,10 +56,10 @@ GameDialog::GameDialog(QWidget* parent)
 
     // SHIP
     QPixmap ship;
-    if(c->shipUseXwing){
-        ship.load(":/Images/ship_xwing.png");
-    }else{
+    if(legacyMode){
         ship.load(":/Images/ship.png");
+    }else{
+        ship.load(":/Images/ship_xwing.png");
     }
     this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
     this->next_instruct = 0;
@@ -84,6 +92,7 @@ GameDialog::GameDialog(QWidget* parent)
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
     cursor.setCursorState(NORMAL);
+    cursor.setCursorState(FIGHTER);
 }
 
 GameDialog::~GameDialog() {
@@ -112,21 +121,66 @@ void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
 }
 
 void GameDialog::pauseStart() {
+    if(legacyMode){
+        if (this->paused) {
+            // Now unpause!
+            if(!legacyMode){
+                gameMenu.hide();
+                cursor.setCursorState(cursor.preState);
+            }
+            // start game
+            this->paused = false;
+            this->menu->displayMenu(paused);
+            this->timer->start(static_cast<int>(frames * timerModifier));
+        } else {
+            // Now pause!
+            if(!legacyMode){
+                gameMenu.show();
+                cursor.setCursorState(NORMAL);
+            }
+            this->paused = true;
+            this->menu->displayMenu(paused);
+            this->timer->stop();
+        }
+        return;
+    }
+
     if (this->paused) {
+        // Now unpause!
         gameMenu.hide();
+        cursor.setCursorState(cursor.preState);
         // start game
         this->paused = false;
-        this->menu->displayMenu(paused);
         this->timer->start(static_cast<int>(frames * timerModifier));
     } else {
+        // Now pause!
         gameMenu.show();
+        cursor.setCursorState(NORMAL);
         this->paused = true;
-        this->menu->displayMenu(paused);
         this->timer->stop();
     }
 }
 
+int GameDialog::countAliens(AlienBase* root){
+    // given an alien base, return the recursive number of descendants
+    int num = 0;
+    for(AlienBase* child : root->getAliens()){
+        num += countAliens(child);
+    }
+    // base case if this root is the global pointer swarms, decrease one
+    if(root == swarms)
+        return num;
+    return num + 1;
+}
+
 void GameDialog::keyPressEvent(QKeyEvent* event) {
+    if(legacyMode){
+        if(event->key() == Qt::Key_P){
+            pauseStart();
+        }
+        return;
+    }
+
     // Deal with overriding config file
     if(!playerOverride){
         switch(event->key()){
@@ -186,6 +240,16 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             cursor.setCursorState(static_cast<CURSOR_STATE>(s)); // assign the cursor state
         }
             break;
+        case(Qt::Key_Z):
+        {
+            // cycle through each cannon
+            int s = ship->cannonType;
+            if(++s == END_OF_CANNON_TYPE)
+                s = 0; // loop back to zero (NORMAL STATE)
+            ship->cannonType = static_cast<CannonType>(s); // assign the cursor state
+            ship->cannonAmmo = 100;
+        }
+            break;
         case(Qt::Key_Plus):
             if(curStageNum + 1 >= c->getSwarmList().size())
                 break;
@@ -221,6 +285,7 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
         break;
     case(Qt::Key_Space):
         pressedKeys[Qt::Key_Space] = false;
+        laserBeam.exists = false;
         break;
     }
 }
@@ -265,6 +330,8 @@ void GameDialog::nextFrame() {
                 if(b){
                     bullets.push_back(b);
                     this->shipFiringSound.play();
+                }else{
+
                 }
             }
         }else{ // use user input keys
@@ -275,26 +342,103 @@ void GameDialog::nextFrame() {
                 ship->move_right();
             }
             if (pressedKeys[Qt::Key_Space]) {
-                Bullet* b = this->ship->shoot();
-                if(b){
-                    bullets.push_back(b);
-                    this->shipFiringSound.play();
+                // special case of laser shooting
+                if(ship->cannonType == Laser && ship->cannonAmmo > 0){
+                    laserBeam.exists = true;
+                    laserBeam.originX = ship->get_x();
+                    laserBeam.originY = ship->get_y();
+                    laserBeam.width = ship->get_image().width() * 0.3;
+                    ship->cannonAmmo -= 2;
+                    if(ship->cannonAmmo <= 0){
+                        ship->cannonType = Normal;
+                        laserBeam.exists = false;
+                    }
+                }else{
+                    Bullet* b = this->ship->shoot();
+                    if(b){
+                        bullets.push_back(b);
+                        this->shipFiringSound.play();
+                    }
+                }
+            }
+        }
+        // check collision of laser with alien
+        // loop through the recursive aliens, put in stack first
+        if(laserBeam.exists){
+            std::stack<AlienBase*> stack;
+            stack.push(swarms);
+            while(stack.size() > 0){
+                AlienBase* root = stack.top();
+                stack.pop();
+                for(AlienBase* child: root->getAliens()){
+                    if(child->getAliens().size() == 0){
+                        // base case, check for collision
+                        if(child->get_x() > laserBeam.originX && child->get_x() < laserBeam.originX + laserBeam.width){
+                            // create explosion at the place of alien
+                            explosions.push_back(Explosion(child->get_x()+child->get_image().width()/2,
+                                                           child->get_y()+child->get_image().height()/5,
+                                                           child->get_image().height()*1.2, SmallExplosion));
+                            addBullets(child->react());
+                            this->gameScore += child->get_score();
+                            root->remove(child);
+                            break;
+                        }
+                    }else{
+                        stack.push(child);
+                    }
                 }
             }
         }
 
-        cursor.getCurState()->update(); // update cursor
+
+        // check collision of powerups with ship
+        std::vector<Powerup>::iterator pit = powerups.begin();
+        while (pit != powerups.end()) {
+            Powerup p = (*pit);
+            // checking if those two overlaps
+            if(ship->get_x() < (p.x()+p.radius*2) &&
+                    ship->get_x()+ship->get_image().width() > p.x() &&
+                    ship->get_y() < p.y()+p.radius*2 &&
+                    ship->get_y()+ship->get_image().height() > p.y()){
+
+                //apply power up to ship and delete powerups
+                switch(p.type){
+                case(PenPowerup):
+                    cursor.setCursorState(PEN);
+                    break;
+                case(LaserPowerup):
+                    ship->cannonType = Laser;
+                    ship->cannonAmmo = 200;
+                    break;
+                case(MachineGunPowerup):
+                    ship->cannonType = MachineGun;
+                    ship->cannonAmmo = 50;
+                    break;
+                }
+                pit = powerups.erase(pit);
+                continue;
+                // power ups out of screen
+            }else if (p.y() > SCALEDHEIGHT) {
+                pit = powerups.erase(pit);
+                continue;
+            }
+            ++pit;
+        }
+
         updateBullets(); //update bullets
         ship->update(); //update ship
-        bg.nextFrame(); //update background
-        // update explosions
-        for(Explosion& e: explosions)
-            e.nextFrame();
-        // update powerup
-        for(Powerup& p : powerups)
-            p.update();
-        // update status bar
-        statusBar.update();
+        if(!legacyMode){
+            cursor.getCurState()->update(); // update cursor
+            bg.nextFrame(); //update background
+            // update explosions
+            for(Explosion& e: explosions)
+                e.nextFrame();
+            // update powerup
+            for(Powerup& p : powerups)
+                p.update();
+            // update status bar
+            statusBar.update();
+        }
 
         // loop through each alien swarm, move and calculated collisions
         swarms->move("");  // recursive.
@@ -335,19 +479,28 @@ void GameDialog::updateBullets()
         // WHEN BULLET OFF GAME SCREEN, FREE MEMORY AND DELETE
         int score = get_collided(b, swarms);
 
-        if (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT || /* out of screen in Y */
-                b->get_x() < 0 || b->get_x() >= SCALEDWIDTH || /* out of screen in X */
-                score > 0 || /* hit the ship */
-                updateBullets_barrierChkHelper(b->get_x(), b->get_y())){ /* hit the barrier */
+        bool outOfScreen = (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT || /* out of screen in Y */
+                            b->get_x() < 0 || b->get_x() >= SCALEDWIDTH); /* out of screen in X */
+
+        if (outOfScreen || score > 0 || updateBullets_barrierChkHelper(b->get_x(), b->get_y())){ /* hit the barrier */
+            // bullet shoud get destoryed
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;
+            if(!outOfScreen && !legacyMode){
+                explosions.push_back(Explosion(b->get_x()+b->get_image().width()/2,
+                                               b->get_y()+b->get_image().height()/5,
+                                               b->get_image().height()*1.4, SmallExplosion));
+            }
         } else if (score == -1) {
+            if(!legacyMode)
+                explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
+                                               ship->get_y()+ship->get_image().height()/5,
+                                               ship->get_image().width()*1.4, ShipExplosion));
             // DEAD SHIP!
+            if(legacyMode)
+                close();
             ship->dead = true;
-            explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
-                                           ship->get_y()+ship->get_image().height()/5,
-                                           ship->get_image().width()*1.4, ShipExplosion));
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;
@@ -385,6 +538,8 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
             // check if it is crashing into the player ship
             if (child->collides(*this->ship)) {
                 // DEAD SHIP AGAIN
+                if(legacyMode)
+                    close();
                 ship->dead = true;
                 explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
                                                ship->get_y()+ship->get_image().height()/5,
@@ -399,8 +554,23 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
 // PAINTING THE SHIP AND ANY BULLETS
 void GameDialog::paintEvent(QPaintEvent*) {
     QPainter painter(this);
-    // Draw background first
-    bg.draw(&painter);
+    if(!legacyMode){
+        // Draw background first
+        bg.draw(&painter);
+
+        // draw laser beam
+        if(laserBeam.exists){
+            painter.setPen(Qt::NoPen);
+            // outer laser beam
+            painter.setBrush(Qt::magenta);
+            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
+                             laserBeam.width, laserBeam.originY - ship->get_image().height()/2);
+            // inner laser beam
+            painter.setBrush(Qt::yellow);
+            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
+                             laserBeam.width, laserBeam.originY + ship->get_image().height()/2);
+        }
+    }
 
     // SHIP
     painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
@@ -408,34 +578,37 @@ void GameDialog::paintEvent(QPaintEvent*) {
     // loop through each alien swarm and draw
     paintSwarm(painter, swarms);
 
-    // Draw all the PowerUps
-    for(Powerup p : powerups)
-        p.draw(&painter);
-
     // BULLETS last so they draw over everything
     paintBullets(painter);
 
-    // Draw all the barrier blocks
-    for(BarrierBlock b: barriers)
-        b.draw(&painter);
+    if(!legacyMode){
+        // Draw all the PowerUps
+        for(Powerup p : powerups)
+            p.draw(&painter);
 
-    // draw explosions
-    std::vector<Explosion>::iterator it = explosions.begin();
-    while (it != explosions.end()) {
-        if((*it).finished) {
-            it = explosions.erase(it);
-            continue;
+        // Draw all the barrier blocks
+        for(BarrierBlock b: barriers)
+            b.draw(&painter);
+
+        // draw explosions
+        std::vector<Explosion>::iterator it = explosions.begin();
+        while (it != explosions.end()) {
+            if((*it).finished) {
+                it = explosions.erase(it);
+                continue;
+            }
+            (*it).draw(&painter);
+            ++it;
         }
-        (*it).draw(&painter);
-        ++it;
+
+        // draw status bar
+        statusBar.draw(&painter);
+
+        // draw debug info if needed
+        if(debugMode)
+            printDebugInfo(&painter);
+
     }
-
-    // draw status bar
-    statusBar.draw(&painter);
-
-    // draw debug info if needed
-    if(debugMode)
-        printDebugInfo(&painter);
 }
 
 // if this bullet is unfriendly, only check if it hits Ship
@@ -455,7 +628,7 @@ int GameDialog::get_collided(Bullet*& b, AlienBase*& root) {
         score = get_collided_swarm(b, root);
 
         if(score > 0){
-            int r = c->get_scale() * 15;
+            int r = c->get_scale() * 20;
             // randomly generate a powerup after killing an alien
             if(GameDialog::randInt(0, 100) > (100 - POWERUP_DROP_RATE)){ // 35% drop rate
                 powerups.push_back(Powerup::generateRandomPowerup(b->get_x(), b->get_y() - r*2, r));
@@ -483,7 +656,7 @@ int GameDialog::get_collided_swarm(Bullet*& b, AlienBase*& root) {
             // if it's another swarm, recurse down the tree
             totalScore += get_collided_swarm(b, child);
             // if something was hit, score > 0
-            if (totalScore > 0 && child->getAliens().size() == 0) {
+            if (child->getAliens().size() == 0 && (totalScore > 0 || dynamic_cast<Swarm*>(child) != NULL)) {
                 // some children shoot more bullets when they die.
                 // ask child for reaction when you're going to delete them
                 addBullets(child->react());
@@ -528,6 +701,10 @@ void GameDialog::printDebugInfo(QPainter* p){
     if (paused)
         str += "--PAUSED--";
     p->drawText(20, line_height * 3, str);
+
+    // print cursor state
+    str = "Remaining Aliens: " + QString::number(countAliens(swarms));
+    p->drawText(20, line_height * 4, str);
 }
 
 // HELPER FUNCTION

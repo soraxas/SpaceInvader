@@ -6,9 +6,10 @@
 
 namespace game {
 
+enum CannonType {Normal, MachineGun, Laser, END_OF_CANNON_TYPE};
+
 class Ship : public Base {
     // A SHIP CAN MOVE LEFT, RIGHT AND SHOOT (ALL WITH AN VELOCITY)
-
 private:
     int velocity;
     int bullet_velocity;
@@ -23,5 +24,10 @@ public:
     void update();
     virtual ~Ship();
     bool dead;
+
+    CannonType cannonType;
+    int cannonAmmo;
+    // A toggle for determining if the machine gun shot be shoot at left (or right)
+    bool machineGunShootAtLeft;
 };
 }

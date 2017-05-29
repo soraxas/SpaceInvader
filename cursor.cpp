@@ -1,7 +1,7 @@
 #include "cursor.h"
 
 namespace game{
-Cursor::Cursor(GameDialog* gDialog) : radius(5)
+Cursor::Cursor(GameDialog* gDialog) : radius(5), preState(NORMAL)
 {
     // the normal state for the cursor (default)
     CursorState* normal= new NormalState(this, gDialog);
@@ -28,6 +28,7 @@ CursorState* Cursor::getCurState(){
 }
 
 void Cursor::setCursorState(CURSOR_STATE state){
+    preState = this->state;
     currentState = cursorStatesList[state];
     this->state = state;
 

@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>Sounds/shoot.wav</file>
+        <file>Images/Gun.png</file>
+        <file>Images/MachineGun.png</file>
+        <file>Images/LaserGun.png</file>
         <file>Images/pen.png</file>
         <file>Images/barrier.png</file>
         <file>Images/laser.png</file>
@@ -42,6 +45,16 @@
         <file>Images/shipExplosion_21.png</file>
         <file>Images/shipExplosion_22.png</file>
         <file>Images/shipExplosion_23.png</file>
+        <file>Images/smallExplosion_0.gif</file>
+        <file>Images/smallExplosion_1.gif</file>
+        <file>Images/smallExplosion_2.gif</file>
+        <file>Images/smallExplosion_3.gif</file>
+        <file>Images/smallExplosion_4.gif</file>
+        <file>Images/smallExplosion_5.gif</file>
+        <file>Images/smallExplosion_6.gif</file>
+        <file>Images/smallExplosion_7.gif</file>
+        <file>Images/smallExplosion_8.gif</file>
+        <file>Images/smallExplosion_9.gif</file>
 
     </qresource>
 </RCC>

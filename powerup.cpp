@@ -16,20 +16,34 @@ void Powerup::draw(QPainter* p){
     p->setPen(Qt::NoPen);
 
     switch(type){
+    p->setBrush(Qt::gray);
+
     case(MachineGunPowerup):
         p->setPen(Qt::green);
-        p->setBrush(Qt::green);
         break;
     case(LaserPowerup):
         p->setPen(Qt::magenta);
-        p->setBrush(Qt::magenta);
+//        p->setBrush(Qt::magenta);
         break;
     case(PenPowerup):
         p->setPen(Qt::red);
-        p->setBrush(Qt::red);
+//        p->setBrush(Qt::red);
     }
-
     p->drawEllipse(x(), y(), radius*2, radius*2);
+
+    QPixmap pixmap;
+    switch (type) {
+    case(MachineGunPowerup):
+        pixmap.load(":/Images/MachineGun.png");
+        break;
+    case(LaserPowerup):
+        pixmap.load(":/Images/LaserGun.png");
+        break;
+    case(PenPowerup):
+        pixmap.load(":/Images/pen.png");
+    }
+    pixmap = pixmap.scaledToWidth(radius * 1.5);
+    p->drawPixmap(x() + radius*0.25, y() + radius*0.25, pixmap);
 }
 void Powerup::update(){
     if(moveLeft){

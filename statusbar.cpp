@@ -110,27 +110,56 @@ void StatusBar::draw(QPainter* p){
         p->fillRect(containerOuter, QBrush(QColor(0, 0, 0, 128)));
 
     //////////////////////////////////////////
-    //////      CURRENT SCORE
+    //////      CURRENT STAGE
     //////////////////////////////////////////
-    p->setPen(Qt::white);
+    p->setPen(Qt::yellow);
     QFont f("monospace");
     f.setStyleHint(QFont::TypeWriter);
     f.setFamily("courier");
-    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.5));
-
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.1));
     p->setFont(f);
-    p->drawText(gd->SCALEDWIDTH*0.05, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.8, QString::number(gd->gameScore));
+    p->drawText(gd->SCALEDWIDTH*0.02, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.3, "Stage: ");
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.3));
+    p->setFont(f);
+    p->drawText(gd->SCALEDWIDTH*0.03, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.8, QString::number(gd->curStageNum));
 
-    //    // print keyboard hint
-    //    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [P] Pause/Resume | [-/+] Goto Prev/Next Stage");
+    //////////////////////////////////////////
+    //////      CURRENT SCORE
+    //////////////////////////////////////////
+    p->setPen(Qt::white);
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.1));
+    p->setFont(f);
+    p->drawText(gd->SCALEDWIDTH*0.1, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.3, "Score: ");
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.55));
+    p->setFont(f);
+    p->drawText(gd->SCALEDWIDTH*0.12, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.875, QString::number(gd->gameScore));
 
-    //    // print spaceship x, y
-    //    str = "Spaceship [X:";
-    //    str += QString::number(ship->get_x());
-    //    str += " Y:";
-    //    str += QString::number(ship->get_y()) + "]";
-    //    p->drawText(20, line_height * 2, str);
-
+    //////////////////////////////////////////
+    //////      DRAW CANNON
+    //////////////////////////////////////////
+    p->setPen(Qt::yellow);
+    f.setPointSize(static_cast<int>(gd->STATUSBARHEIGHT * 0.25));
+    p->setFont(f);
+    QString str;
+    if(gd->ship->cannonAmmo < 0)
+        str = "inf";
+    else
+        str = QString::number(gd->ship->cannonAmmo);
+    QPixmap pixmap;
+    switch(gd->ship->cannonType){
+    case(Normal):
+        pixmap.load(":/Images/Gun.png");
+        break;
+    case(Laser):
+        pixmap.load(":/Images/LaserGun.png");
+        break;
+    case(MachineGun):
+        pixmap.load(":/Images/MachineGun.png");
+        break;
+    }
+    pixmap = pixmap.scaledToWidth(gd->STATUSBARHEIGHT*0.8);
+    p->drawPixmap(gd->SCALEDWIDTH*0.25, gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.2, pixmap);
+    p->drawText(gd->SCALEDWIDTH*0.27+pixmap.width(), gd->SCALEDHEIGHT + gd->STATUSBARHEIGHT*0.75, str);
 }
 
 void StatusBar::update(){
