@@ -111,6 +111,7 @@ GameDialog::~GameDialog() {
 void GameDialog::initCommands(){
     commandGameStart = std::unique_ptr<Command>(new CommandGameStart(this));
     commandGamePause = std::unique_ptr<Command>(new CommandGamePause(this));
+    commandRestartStage = std::unique_ptr<Command>(new CommandRestartStage(this));
 }
 
 // make the swarms for this level.
@@ -225,6 +226,9 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             ship->cannonType = static_cast<CannonType>(s); // assign the cursor state
             ship->cannonAmmo = 100;
         }
+            break;
+        case(Qt::Key_R):
+            commandRestartStage->execute();
             break;
         case(Qt::Key_Plus):
             if(curStageNum + 1 >= c->getSwarmList().size())

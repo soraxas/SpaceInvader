@@ -17,6 +17,7 @@
 #include "command.h"
 #include "commandgamestart.h"
 #include "commandgamepause.h"
+#include "commonrestartstage.h"
 
 #include <QDialog>
 #include <QSoundEffect>
@@ -105,6 +106,7 @@ public:
     // All Available commands
     std::unique_ptr<Command> commandGameStart;
     std::unique_ptr<Command> commandGamePause;
+    std::unique_ptr<Command> commandRestartStage;
 
 
 public slots:
