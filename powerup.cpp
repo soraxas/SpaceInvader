@@ -9,28 +9,29 @@
 namespace game {
 
 Powerup::Powerup(PowerupType type, int x, int y, int radius) :
-    radius(radius), type(type), centerX(x), centerY(y), deltaX(0)
+    radius(radius), type(type), turnToInvisable(true), alpha(1), centerX(x), centerY(y), deltaX(0)
 {}
 
 void Powerup::draw(QPainter* p){
-    p->setPen(Qt::NoPen);
-
-    switch(type){
+    QPen pen;
+    pen.setWidth(2);
     p->setBrush(Qt::gray);
 
+    switch(type){
     case(MachineGunPowerup):
-        p->setPen(Qt::green);
+        pen.setColor(Qt::green);
         break;
     case(LaserPowerup):
-        p->setPen(Qt::magenta);
-//        p->setBrush(Qt::magenta);
+        pen.setColor(Qt::magenta);
         break;
     case(PenPowerup):
-        p->setPen(Qt::red);
-//        p->setBrush(Qt::red);
+        pen.setColor(Qt::red);
+        break;
     }
+    p->setPen(pen);
+    p->setOpacity(alpha);
     p->drawEllipse(x(), y(), radius*2, radius*2);
-
+p->setOpacity(100);
     QPixmap pixmap;
     switch (type) {
     case(MachineGunPowerup):
@@ -43,9 +44,22 @@ void Powerup::draw(QPainter* p){
         pixmap.load(":/Images/pen.png");
     }
     pixmap = pixmap.scaledToWidth(radius * 1.5);
+
     p->drawPixmap(x() + radius*0.25, y() + radius*0.25, pixmap);
+
 }
 void Powerup::update(){
+    double rate = 0.05;
+    // slowly turn to invisable
+    if(turnToInvisable){
+        alpha -= rate;
+        if(alpha <= 0.4)
+            turnToInvisable = false;
+    }else{
+        alpha += rate;
+        if(alpha >= 0.9)
+            turnToInvisable = true;
+    }
     if(moveLeft){
         deltaX -= DELTA_X_PER_TICK;
         if(-deltaX > MAX_DELTA_X)

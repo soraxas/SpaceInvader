@@ -13,10 +13,12 @@
 #include "statusbar.h"
 #include "gamemenu.h"
 #include "powerup.h"
+#include "stagemaker.h"
 
 #include "command.h"
 #include "commandgamestart.h"
 #include "commandgamepause.h"
+#include "commandclearstage.h"
 #include "commonrestartstage.h"
 
 #include <QDialog>
@@ -76,6 +78,7 @@ public:
     int countAliens(AlienBase* root);
 
     // Game Settings
+    StageMaker stageMaker;
     bool debugMode;
     double timerModifier;    
     int gameScore;  // this run's score.
@@ -106,6 +109,7 @@ public:
     // All Available commands
     std::unique_ptr<Command> commandGameStart;
     std::unique_ptr<Command> commandGamePause;
+    std::unique_ptr<Command> commandClearStage;
     std::unique_ptr<Command> commandRestartStage;
 
 

@@ -22,6 +22,9 @@ public:
     PowerupType type;
     QPixmap pixmap;
 private:
+    // for drawing alpha value
+    bool turnToInvisable;
+    double alpha;
     int centerX;
     int centerY;
     int deltaX;

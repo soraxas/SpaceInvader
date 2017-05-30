@@ -1,7 +1,7 @@
 #include "background.h"
 
 #define NUM_OF_STARS 100
-#define STARS_SPEED 3
+#define STARS_SPEED 2
 
 Background::Background(int screenWidth, int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {

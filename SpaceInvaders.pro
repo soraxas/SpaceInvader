@@ -54,7 +54,10 @@ SOURCES += main.cpp\
     powerup.cpp \
     commandgamestart.cpp \
     commandgamepause.cpp \
-    commonrestartstage.cpp
+    commonrestartstage.cpp \
+    stagemaker.cpp \
+    makerstate.cpp \
+    commandclearstage.cpp
 
 HEADERS  += \
     base.h \
@@ -87,7 +90,10 @@ HEADERS  += \
     powerup.h \
     commandgamestart.h \
     commandgamepause.h \
-    commonrestartstage.h
+    commonrestartstage.h \
+    stagemaker.h \
+    makerstate.h \
+    commandclearstage.h
 
 FORMS    += dialog.ui \
     gamemenu.ui

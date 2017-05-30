@@ -22,7 +22,7 @@
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
-    : QDialog(parent), bullets(), shipFiringSound(this), debugMode(false),
+    : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
       gameScore(0), statusBar(this), bg(500, 500), cursor(this) {
     legacyMode = false;
     // SET UP GAME DIMENSIONS AND CONFIG
@@ -89,6 +89,7 @@ GameDialog::GameDialog(QWidget* parent)
 
     update();
     initCommands();
+    stageMaker.init();
 
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
@@ -111,6 +112,7 @@ GameDialog::~GameDialog() {
 void GameDialog::initCommands(){
     commandGameStart = std::unique_ptr<Command>(new CommandGameStart(this));
     commandGamePause = std::unique_ptr<Command>(new CommandGamePause(this));
+    commandClearStage = std::unique_ptr<Command>(new CommandClearStage(this));
     commandRestartStage = std::unique_ptr<Command>(new CommandRestartStage(this));
 }
 
@@ -230,6 +232,11 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
         case(Qt::Key_R):
             commandRestartStage->execute();
             break;
+        case(Qt::Key_M):
+            commandClearStage->execute();
+            stageMaker.active = !stageMaker.active;
+            cursor.setCursorState(STAGEMMAKER);
+            break;
         case(Qt::Key_Plus):
             if(curStageNum + 1 >= c->getSwarmList().size())
                 break;
@@ -327,7 +334,7 @@ void GameDialog::nextFrame() {
                     laserBeam.exists = true;
                     laserBeam.originX = ship->get_x();
                     laserBeam.originY = ship->get_y();
-                    laserBeam.width = ship->get_image().width() * 0.3;
+                    laserBeam.width = ship->get_image().width() * 0.18  ;
                     ship->cannonAmmo -= 2;
                     if(ship->cannonAmmo <= 0){
                         ship->cannonType = Normal;
@@ -549,15 +556,22 @@ void GameDialog::paintEvent(QPaintEvent*) {
         if(laserBeam.exists){
             painter.setPen(Qt::NoPen);
             // outer laser beam
-            painter.setBrush(Qt::magenta);
-            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
-                             laserBeam.width, laserBeam.originY - ship->get_image().height()/2);
-            // inner laser beam
-            painter.setBrush(Qt::yellow);
+            painter.setBrush(Qt::blue);
             painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
                              laserBeam.width, laserBeam.originY + ship->get_image().height()/2);
+            // inner laser beam
+            painter.setBrush(Qt::white);
+            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/4, 0,
+                             laserBeam.width/2, laserBeam.originY + ship->get_image().height()/2);
         }
     }
+
+    // Stage Maker MODE!
+    if(stageMaker.active){
+        stageMaker.draw(&painter);
+        return;
+    }
+
 
     // SHIP
     painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
