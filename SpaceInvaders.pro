@@ -51,7 +51,9 @@ SOURCES += main.cpp\
     unittestspaceinvader.cpp \
     statusbar.cpp \
     gamemenu.cpp \
-    powerup.cpp
+    powerup.cpp \
+    commandgamestart.cpp \
+    commandgamepause.cpp
 
 HEADERS  += \
     base.h \
@@ -81,7 +83,9 @@ HEADERS  += \
     command.h \
     statusbar.h \
     gamemenu.h \
-    powerup.h
+    powerup.h \
+    commandgamestart.h \
+    commandgamepause.h
 
 FORMS    += dialog.ui \
     gamemenu.ui

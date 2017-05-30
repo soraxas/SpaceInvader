@@ -88,6 +88,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->setMouseTracking(true);
 
     update();
+    initCommands();
 
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
@@ -107,6 +108,11 @@ GameDialog::~GameDialog() {
     }
 }
 
+void GameDialog::initCommands(){
+    commandGameStart = std::unique_ptr<Command>(new CommandGameStart(this));
+    commandGamePause = std::unique_ptr<Command>(new CommandGamePause(this));
+}
+
 // make the swarms for this level.
 void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
     if(swarms)
@@ -121,43 +127,13 @@ void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
 }
 
 void GameDialog::pauseStart() {
-    if(legacyMode){
-        if (this->paused) {
-            // Now unpause!
-            if(!legacyMode){
-                gameMenu.hide();
-                cursor.setCursorState(cursor.preState);
-            }
-            // start game
-            this->paused = false;
-            this->menu->displayMenu(paused);
-            this->timer->start(static_cast<int>(frames * timerModifier));
-        } else {
-            // Now pause!
-            if(!legacyMode){
-                gameMenu.show();
-                cursor.setCursorState(NORMAL);
-            }
-            this->paused = true;
-            this->menu->displayMenu(paused);
-            this->timer->stop();
-        }
-        return;
-    }
 
     if (this->paused) {
         // Now unpause!
-        gameMenu.hide();
-        cursor.setCursorState(cursor.preState);
-        // start game
-        this->paused = false;
-        this->timer->start(static_cast<int>(frames * timerModifier));
+        commandGameStart->execute();
     } else {
         // Now pause!
-        gameMenu.show();
-        cursor.setCursorState(NORMAL);
-        this->paused = true;
-        this->timer->stop();
+        commandGamePause->execute();
     }
 }
 

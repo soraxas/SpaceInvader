@@ -5,10 +5,11 @@ namespace game {
 class GameDialog;
 
 class Command{
-    Command(GameDialog* gamedialog) : gd(gamedialog){}
+public:
+    Command(GameDialog* gamedialog) : gDialog(gamedialog){}
     virtual void execute() = 0;
 protected:
-    GameDialog* gd;
+    GameDialog* gDialog;
 };
 }
 

@@ -15,12 +15,15 @@
 #include "powerup.h"
 
 #include "command.h"
+#include "commandgamestart.h"
+#include "commandgamepause.h"
 
 #include <QDialog>
 #include <QSoundEffect>
 #include <QWidget>
 #include <vector>
 #include <QMouseEvent>
+#include <memory>
 
 namespace game {
 
@@ -89,7 +92,7 @@ public:
     // Helper function
     static int randInt(int low, int high);
     static void SeedRandInt();
-private:
+
     GameMenu gameMenu;
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
@@ -97,6 +100,12 @@ private:
     std::map<int,bool> pressedKeys;
     Background bg;
     Cursor cursor; // cursor for various functions
+
+    void initCommands();
+    // All Available commands
+    std::unique_ptr<Command> commandGameStart;
+    std::unique_ptr<Command> commandGamePause;
+
 
 public slots:
     void nextFrame();
