@@ -43,6 +43,9 @@ void PenState::updateCursorDisplay(){
 void PenState::update(){
     // try adding block to the existing screen
     if(leftPressing){
+        // ignore if cursor is on top of the tool bar / status bar
+        if(cursorY > gDialog->SCALEDHEIGHT)
+            return;
         // if all energy are used, revert back to TIE-fighter state
         if(gDialog->statusBar.barrierEnergy <= 0){
             cursor->setCursorState(FIGHTER);

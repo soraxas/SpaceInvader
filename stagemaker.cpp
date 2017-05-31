@@ -2,13 +2,15 @@
 
 #include "stagemaker.h"
 #include "gamedialog.h"
+#include <QPair>
+#include <vector>
 #define BLOCK_DIMENSION 30
 
 namespace game {
 
 
-StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog), active(false),
-    holdingObject(SMAKER_HOLDING_NONE)
+StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog),
+    holdingObject(SMAKER_HOLDING_NONE), active(false), testing(false)
 {
 
 }
@@ -72,11 +74,30 @@ void StageMaker::init(){
     clearAllBtn = QRect(gDialog->SCALEDWIDTH * 0.8, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
                         gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
     testStageBtn = QRect(gDialog->SCALEDWIDTH * 0.9, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
-                        gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
+                         gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
 }
 
 
 void StageMaker::draw(QPainter* p){
+    QFont f;
+    f.setPointSize(static_cast<int>(gDialog->STATUSBARHEIGHT * 0.3));
+    p->setFont(f);
+    p->setPen(Qt::red);
+    p->drawText(10, gDialog->SCALEDHEIGHT - 10, "SpaceInvade Stage Maker!!");
+
+    if(testing){
+
+        // only draw the instruction to escape testing mode, but do not draw the placed object
+        p->setPen(Qt::yellow);
+        p->drawText(50, 50, "PRESS [ESC] to exit testing mode");
+        return;
+    }else{
+        if(gDialog->cursor.state != STAGEMMAKER)
+            gDialog->cursor.setCursorState(STAGEMMAKER);
+    }
+    f.setPointSize(12);
+    p->setFont(f);
+    p->setPen(Qt::NoPen);
 
     // first draw the bottom tool box bar
     p->setBrush(Qt::gray);
@@ -154,6 +175,8 @@ void StageMaker::update(){
 }
 
 void StageMaker::buttonPressed(){
+    if(testing)
+        return;
     if(gDialog->cursor.getCurState()->cursorY > gDialog->SCALEDHEIGHT){
         // CURSOR ON TOOL BOX:
 
@@ -203,6 +226,8 @@ void StageMaker::buttonPressed(){
 }
 
 void StageMaker::buttonReleased(){
+    if(testing)
+        return;
     // the cursor must be holding "something" and NOT on top of the tool bar when it release, for the placing of object works
     if(holdingObject != SMAKER_HOLDING_NONE && gDialog->cursor.getCurState()->cursorY < gDialog->SCALEDHEIGHT){
         // special case of connecting line from instruction box to object (alines)
@@ -253,7 +278,94 @@ void StageMaker::clearAll(){
 }
 
 void StageMaker::testStage(){
+    // Now we need to try use all the user inputs to generate a swarminfo file and run the stage.
+    int defaultShootInterval = 10;
 
+    // list to assign the placed object (aliens) to the corresponding instruction box
+    std::vector<std::pair<SMakerPlacedObject, std::vector<SMakerPlacedObject>>> instructionsList;
+    // default instructionbox for all that has no connected line
+
+    std::pair<SMakerPlacedObject, std::vector<SMakerPlacedObject>> defaultInstruction = std::make_pair(objectTemplate[SMAKER_HOLDING_INSTRUCTION_BOX], std::vector<SMakerPlacedObject>());
+
+    // first loop through it and retrieve all instructions
+    for(SMakerPlacedObject obj : objects){
+        if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
+            auto pair = std::make_pair(obj, std::vector<SMakerPlacedObject>());
+            instructionsList.push_back(pair);
+        }
+    }
+
+
+    // for all other alien objects, pair it with the instructions (if exists). if not, use the default instruction (do nothing)
+    for(SMakerPlacedObject& obj : objects){
+        switch(obj.type){
+        case(SMAKER_HOLDING_ALIEN_BLUE):
+        case(SMAKER_HOLDING_ALIEN_RED):
+        case(SMAKER_HOLDING_ALIEN_HUNTER):
+        case(SMAKER_HOLDING_ALIEN_DUMB):
+            // search through the list to pair it with the instruction box
+            std::pair<SMakerPlacedObject, std::vector<SMakerPlacedObject>> *instructionBox = NULL;
+            if(obj.connected){
+                for(auto&& instruction : instructionsList){
+                    if(instruction.first.hitBox.contains(obj.connectedPoint)){
+                        instructionBox = &instruction;
+                        break;
+                    }
+                }
+            }
+            // if none are found, use the default instruction box.
+            if(!instructionBox)
+                instructionBox = &defaultInstruction;
+
+            // place the object into the instruction list
+            instructionBox->second.push_back(obj);
+            break;
+        }
+    }
+
+    // push back the default instruction box
+    instructionsList.push_back(defaultInstruction);
+
+    // Now build up the QList of swarm info to send to the alien builder from Stage 1
+    QList<SwarmInfo> swarms;
+    for(auto&& instruction : instructionsList){
+        QStringList strList = instruction.first.instructions.split(",");
+
+        for(auto&& obj : instruction.second){
+            QString type;
+            switch(obj.type){ // convert enum to qstring
+            case(SMAKER_HOLDING_ALIEN_BLUE):
+                type = "blue";
+                break;
+            case(SMAKER_HOLDING_ALIEN_RED):
+                type = "red";
+                break;
+            case(SMAKER_HOLDING_ALIEN_HUNTER):
+                type = "hunter";
+                break;
+            case(SMAKER_HOLDING_ALIEN_DUMB):
+                type = "dumb";
+                break;
+            }
+            QList<QPair<int, int>> p;
+            p.append(QPair<int, int> (obj.hitBox.x(),obj.hitBox.y()));
+            SwarmInfo info(type, p, strList, defaultShootInterval);
+            swarms.push_back(info);
+        }
+    }
+    // tell the main window to generate swarms
+    gDialog->generateAliens(swarms);
+    gDialog->cursor.setCursorState(FIGHTER);
+
+    // append all the barrier blocks into the game engine
+    for(auto&& obj : objects){
+        if(obj.type == SMAKER_HOLDING_BARRIER_BLOCK){
+            gDialog->barriers.push_back(BarrierBlock(obj.hitBox.x(), obj.hitBox.y(),BLOCK_DIMENSION));
+        }
+    }
+
+    // set current state as testing
+    testing = true;
 }
 
 }

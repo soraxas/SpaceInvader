@@ -173,8 +173,14 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     }
 
     switch(event->key()){
-    case(Qt::Key_P):
+//    case(Qt::Key_P):
     case(Qt::Key_Escape):
+        if(stageMaker.testing){
+            // special case of stage maker state
+            stageMaker.testing = false;
+            commandClearStage->execute();
+            return;
+        }
         pauseStart();
         break;
     case(Qt::Key_Left):
@@ -569,9 +575,7 @@ void GameDialog::paintEvent(QPaintEvent*) {
     // Stage Maker MODE!
     if(stageMaker.active){
         stageMaker.draw(&painter);
-        return;
     }
-
 
     // SHIP
     painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
@@ -603,7 +607,8 @@ void GameDialog::paintEvent(QPaintEvent*) {
         }
 
         // draw status bar
-        statusBar.draw(&painter);
+        if(stageMaker.testing || !stageMaker.active)
+            statusBar.draw(&painter);
 
         // draw debug info if needed
         if(debugMode)

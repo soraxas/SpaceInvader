@@ -51,11 +51,10 @@ public:
     SMakerObjectType holdingObject;
     GameDialog* gDialog;
     bool active;
+    bool testing;
 private:
     void drawInstructionBox(QPainter* p, const QRect& hitBox);
     std::vector<SMakerPlacedObject> objects;
-    //    Ui_InstructionRequest* req;
-    //    QDialog* requestUi;
     InstructionRequest req;
 };
 
