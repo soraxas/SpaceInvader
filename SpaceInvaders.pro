@@ -59,7 +59,11 @@ SOURCES += main.cpp\
     makerstate.cpp \
     commandclearstage.cpp \
     instructionirequest.cpp \
-    leaderboardnamerequest.cpp
+    leaderboardnamerequest.cpp \
+    commandgotogamemode.cpp \
+    commandgotostagemakermode.cpp \
+    commandgotoleaderboardmode.cpp \
+    commandgototitlescreenmode.cpp
 
 HEADERS  += \
     base.h \
@@ -97,7 +101,11 @@ HEADERS  += \
     makerstate.h \
     commandclearstage.h \
     instructionirequest.h \
-    leaderboardnamerequest.h
+    leaderboardnamerequest.h \
+    commandgotogamemode.h \
+    commandgotostagemakermode.h \
+    commandgotoleaderboardmode.h \
+    commandgototitlescreenmode.h
 
 FORMS    += dialog.ui \
     gamemenu.ui \

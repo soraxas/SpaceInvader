@@ -1,6 +1,5 @@
 #include "gamemenu.h"
 #include "gamedialog.h"
-#include "ui_gamemenu.h"
 #include <QString>
 
 namespace game{
@@ -48,47 +47,27 @@ void game::GameMenu::on_applySetting_clicked(){
 }
 
 
-void game::GameMenu::on_exitBtn_clicked()
-{
+void game::GameMenu::on_exitBtn_clicked(){
     gDialog->close();
     close();
 }
 
-void game::GameMenu::on_stageMakerBtn_clicked()
-{
-    if(gDialog->currentState != GAME_STATUS_STAGE_MAKER){
-        gDialog->stageTransitionBox.moveTo(gDialog->SCALEDWIDTH, gDialog->stageTransitionBox.y());
-        gDialog->currentState = GAME_STATUS_STAGE_MAKER;
-        gDialog->commandClearStage->execute();
-        gDialog->cursor.setCursorState(STAGEMMAKER);
-        ui->startGameBtn->setHidden(true);
-        ui->stageMakerBtn->setHidden(true);
-        ui->leaderBoardBtn->setHidden(true);
-        ui->returnToTitleBtn->setHidden(false);
-        //        ui->stageMakerBtn->setHidden(true);
-    }else{
-        gDialog->currentState = GAME_STATUS_TITLE_SCREEN;
-    }
+void game::GameMenu::on_stageMakerBtn_clicked(){
+    gDialog->commandGoToStageMakerMode->execute();
     close();
 }
 
-void game::GameMenu::on_leaderBoardBtn_clicked()
-{
-
+void game::GameMenu::on_leaderBoardBtn_clicked(){
+    gDialog->commandGoToLeaderBoardMode->execute();
+    close();
 }
 
 void game::GameMenu::on_startGameBtn_clicked(){
-    gDialog->currentState = GAME_STATUS_IN_GAME;
-    gDialog->curStageNum = 0;
+    gDialog->commandGoToGameMode->execute();
     close();
 }
 
 void game::GameMenu::on_returnToTitleBtn_clicked(){
-    gDialog->currentState = GAME_STATUS_TITLE_SCREEN;
-    gDialog->commandClearStage->execute();
-    ui->startGameBtn->setHidden(false);
-    ui->stageMakerBtn->setHidden(false);
-    ui->leaderBoardBtn->setHidden(false);
-    ui->returnToTitleBtn->setHidden(true);
+    gDialog->commandGoToTitleScreenMode->execute();
     close();
 }

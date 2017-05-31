@@ -21,6 +21,10 @@
 #include "commandgamepause.h"
 #include "commandclearstage.h"
 #include "commonrestartstage.h"
+#include "commandgototitlescreenmode.h"
+#include "commandgotogamemode.h"
+#include "commandgotostagemakermode.h"
+#include "commandgotoleaderboardmode.h"
 
 #include <QDialog>
 #include <QSoundEffect>
@@ -124,6 +128,10 @@ public:
     std::unique_ptr<Command> commandGamePause;
     std::unique_ptr<Command> commandClearStage;
     std::unique_ptr<Command> commandRestartStage;
+    std::unique_ptr<Command> commandGoToTitleScreenMode;
+    std::unique_ptr<Command> commandGoToGameMode;
+    std::unique_ptr<Command> commandGoToStageMakerMode;
+    std::unique_ptr<Command> commandGoToLeaderBoardMode;
 
 
 public slots:

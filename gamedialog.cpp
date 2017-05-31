@@ -120,6 +120,10 @@ void GameDialog::initCommands(){
     commandGamePause = std::unique_ptr<Command>(new CommandGamePause(this));
     commandClearStage = std::unique_ptr<Command>(new CommandClearStage(this));
     commandRestartStage = std::unique_ptr<Command>(new CommandRestartStage(this));
+    commandGoToTitleScreenMode = std::unique_ptr<Command>(new CommandGotoTitleScreenMode(this));
+    commandGoToGameMode = std::unique_ptr<Command>(new CommandGotoGameMode(this));
+    commandGoToStageMakerMode = std::unique_ptr<Command>(new CommandGotoStageMakerMode(this));
+    commandGoToLeaderBoardMode = std::unique_ptr<Command>(new CommandGotoLeaderBoardMode(this));
 }
 
 // make the swarms for this level.
@@ -175,8 +179,7 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     case(Qt::Key_Escape):
         if(currentState == GAME_STATUS_STAGE_MAKER_TESTING){
             // special case of stage maker state
-            currentState = GAME_STATUS_STAGE_MAKER;
-            commandClearStage->execute();
+            commandGoToStageMakerMode->execute();
             return;
         }
         // show the main game menu
@@ -301,37 +304,49 @@ void GameDialog::requestName(QString info){
         return;
     leaderBoardNameRequest.ui->infoText->setText(info);
     leaderBoardNameRequest.show();
+    commandGoToLeaderBoardMode->execute();
 }
 
 // FOLLOWING EACH INSTRUCTION TO FRAME - for PLAYER ship.
 void GameDialog::nextFrame() {
     if (!paused) {
-        if(currentState == GAME_STATUS_IN_GAME || currentState == GAME_STATUS_STAGE_MAKER_TESTING){
-            if(currentState == GAME_STATUS_IN_GAME && countAliens(swarms) <= 0){
-                // go to next stage.
-                if(!stageTransition)
-                    // see if there's a next stage
-                    if(curStageNum + 1 < c->getSwarmList().size()){
-                        stageTransition = true;
-                        stageTransitionBox.moveTo(SCALEDWIDTH, stageTransitionBox.y());
-                        ++curStageNum;
+        switch(currentState){
+        case(GAME_STATUS_IN_GAME):
+        case(GAME_STATUS_STAGE_MAKER_TESTING):
+            // we only update these things when the aliens / ship should be shown on screen
+        {
+            if(currentState == GAME_STATUS_IN_GAME){
+                // we only check for stage transition if we are in the main game
+                if(countAliens(swarms) <= 0){
+                    // check if all aliens are dead
+                    if(!stageTransition){
+                        // if we are not transitioning and we have no aliens, then we should go to next stage.
+                        // see if there's a next stage
+                        if(curStageNum + 1 < c->getSwarmList().size()){
+                            // yes there is, go to next stage
+                            stageTransition = true;
+                            stageTransitionBox.moveTo(SCALEDWIDTH, stageTransitionBox.y()); // move the box
+                            ++curStageNum;
+                        }else{
+                            // finished all stage!
+                            laserBeam.exists = false;
+                            commandGoToTitleScreenMode->execute();
+                            requestName("You WON!!! Congratuations, enter your name for the leader board!");
+                        }
                     }else{
-                        // finished all stage!
-                        laserBeam.exists = false;
-                        currentState = GAME_STATUS_TITLE_SCREEN;
-                        requestName("You WON!!! Congratuations, enter your name for the leader board!");
-                    }
-                else{
-                    stageTransitionBox.moveTo(stageTransitionBox.x() - 15, stageTransitionBox.y());
-                    // only starts when the stage transition box has pass through entire screen
-                    if(stageTransitionBox.right() < 0){
-                        stageTransition = false;
-                        // push all aliens
-                        generateAliens(c->getSwarmList()[curStageNum]);
+                        // we are transitioning to next stage. mvoe the transition box
+                        stageTransitionBox.moveTo(stageTransitionBox.x() - 15, stageTransitionBox.y());
+                        if(stageTransitionBox.right() < 0){
+                            // only starts when the stage transition box has pass through entire screen
+                            stageTransition = false;
+                            // generatte all aliens
+                            generateAliens(c->getSwarmList()[curStageNum]);
+                        }
                     }
                 }
             }
             if(!ship->dead){
+                // if the ship is dead, we do not need to update it
                 Config* c = Config::getInstance();
 
                 QStringList instruct = c->get_instructs();
@@ -445,9 +460,10 @@ void GameDialog::nextFrame() {
                     }
                     ++pit;
                 }
+                ship->update(); //update ship locations
             }
-            updateBullets(); //update bullets
-            ship->update(); //update ship
+            updateBullets(); //update bullets locations
+
             if(!legacyMode){
                 cursor.getCurState()->update(); // update cursor
                 // update explosions
@@ -464,6 +480,9 @@ void GameDialog::nextFrame() {
             swarms->move("");  // recursive.
             checkSwarmCollisions(swarms);
             addBullets(swarms->shoot(""));
+
+        }
+            break;
         }
         if(!legacyMode)
             bg.nextFrame(); //update background

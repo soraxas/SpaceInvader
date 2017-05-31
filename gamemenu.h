@@ -1,6 +1,7 @@
 #ifndef GAMEMENU_H
 #define GAMEMENU_H
 
+#include "ui_gamemenu.h"
 #include <QDialog>
 
 namespace Ui { // forward declarate from auto generated header
@@ -17,6 +18,7 @@ public:
     explicit GameMenu(GameDialog* gDialog, QWidget *parent = 0);
     ~GameMenu();
 
+    Ui::GameMenu *ui;
 private slots:
     void reject();
 
@@ -40,7 +42,7 @@ private slots:
 
 private:
     GameDialog* gDialog;
-    Ui::GameMenu *ui;
+
     int speedModifier;
     int powerupDropRate;
 };
