@@ -45,7 +45,7 @@ GameDialog::GameDialog(QWidget* parent)
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
     this->frames = c->get_frames();
     this->playerOverride = false;
-    this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
+    this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT + STATUSBARHEIGHT);
     timerModifier = 1.0;
     powerUpDropRate = POWERUP_DROP_RATE;
     GameDialog::SeedRandInt(); // seed the random number generator
@@ -296,6 +296,9 @@ void GameDialog::showScore() {
 }
 
 void GameDialog::requestName(QString info){
+    if(currentState != GAME_STATUS_IN_GAME)
+        // do nothing if the player is not playing the game
+        return;
     leaderBoardNameRequest.ui->infoText->setText(info);
     leaderBoardNameRequest.show();
 }

@@ -81,8 +81,12 @@ void StageMaker::draw(QPainter* p){
     f.setPointSize(static_cast<int>(gDialog->STATUSBARHEIGHT * 0.3));
     p->setFont(f);
     p->setPen(Qt::red);
-    p->drawText(10, gDialog->SCALEDHEIGHT - 10, "SpaceInvade Stage Maker!!");
-
+    // calculate where to draw the stage maker tag
+    int drawAtY = gDialog->SCALEDHEIGHT - 10;
+    if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING)
+        // we draw on top of status bar if it is currently being tested
+        drawAtY += gDialog->STATUSBARHEIGHT;
+    p->drawText(10, drawAtY, "SpaceInvade Stage Maker!!");
     if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING){
         // only draw the instruction to escape testing mode, but do not draw the placed object
         p->setPen(Qt::yellow);
