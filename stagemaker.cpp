@@ -10,10 +10,8 @@ namespace game {
 
 
 StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog),
-    holdingObject(SMAKER_HOLDING_NONE), active(false), testing(false)
-{
-
-}
+    holdingObject(SMAKER_HOLDING_NONE)
+{}
 
 StageMaker::~StageMaker(){
 
@@ -85,8 +83,7 @@ void StageMaker::draw(QPainter* p){
     p->setPen(Qt::red);
     p->drawText(10, gDialog->SCALEDHEIGHT - 10, "SpaceInvade Stage Maker!!");
 
-    if(testing){
-
+    if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING){
         // only draw the instruction to escape testing mode, but do not draw the placed object
         p->setPen(Qt::yellow);
         p->drawText(50, 50, "PRESS [ESC] to exit testing mode");
@@ -175,7 +172,7 @@ void StageMaker::update(){
 }
 
 void StageMaker::buttonPressed(){
-    if(testing)
+    if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING)
         return;
     if(gDialog->cursor.getCurState()->cursorY > gDialog->SCALEDHEIGHT){
         // CURSOR ON TOOL BOX:
@@ -226,7 +223,7 @@ void StageMaker::buttonPressed(){
 }
 
 void StageMaker::buttonReleased(){
-    if(testing)
+    if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING)
         return;
     // the cursor must be holding "something" and NOT on top of the tool bar when it release, for the placing of object works
     if(holdingObject != SMAKER_HOLDING_NONE && gDialog->cursor.getCurState()->cursorY < gDialog->SCALEDHEIGHT){
@@ -365,7 +362,7 @@ void StageMaker::testStage(){
     }
 
     // set current state as testing
-    testing = true;
+    gDialog->currentState = GAME_STATUS_STAGE_MAKER_TESTING;
 }
 
 }

@@ -50,8 +50,6 @@ public:
     QRect testStageBtn;
     SMakerObjectType holdingObject;
     GameDialog* gDialog;
-    bool active;
-    bool testing;
 private:
     void drawInstructionBox(QPainter* p, const QRect& hitBox);
     std::vector<SMakerPlacedObject> objects;

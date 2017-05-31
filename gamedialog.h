@@ -29,6 +29,9 @@
 #include <memory>
 
 namespace game {
+// enum that defines what sort of stage is the game currently in.
+enum GAME_STATUS{GAME_STATUS_TITLE_SCREEN, GAME_STATUS_IN_GAME, GAME_STATUS_LEADER_BOARD,
+                 GAME_STATUS_STAGE_MAKER, GAME_STATUS_STAGE_MAKER_TESTING};
 
 class GameDialog : public QDialog {
     Q_OBJECT
@@ -80,7 +83,8 @@ public:
     // Game Settings
     StageMaker stageMaker;
     bool debugMode;
-    double timerModifier;    
+    double timerModifier;
+    int powerUpDropRate;
     int gameScore;  // this run's score.
     bool legacyMode; // indicates if the game is running in the Stage 2 version
     int curStageNum;
@@ -104,6 +108,7 @@ public:
     std::map<int,bool> pressedKeys;
     Background bg;
     Cursor cursor; // cursor for various functions
+    GAME_STATUS currentState;
 
     void initCommands();
     // All Available commands

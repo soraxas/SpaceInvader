@@ -17,14 +17,15 @@
 #define CURSOR_BASE_RADIUS 50
 #define STATUS_BAR_HEIGHT 100
 
-#define POWERUP_DROP_RATE 100 //15
+#define POWERUP_DROP_RATE 35 //35
 
 namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
-      gameScore(0), statusBar(this), bg(500, 500), cursor(this) {
+      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this) {
     legacyMode = false;
+    currentState = GAME_STATUS_TITLE_SCREEN;
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
     STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
@@ -41,6 +42,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->playerOverride = false;
     this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT);
     timerModifier = 1.0;
+    powerUpDropRate = POWERUP_DROP_RATE;
     GameDialog::SeedRandInt(); // seed the random number generator
 
     // MENU
@@ -175,9 +177,9 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     switch(event->key()){
 //    case(Qt::Key_P):
     case(Qt::Key_Escape):
-        if(stageMaker.testing){
+        if(currentState == GAME_STATUS_STAGE_MAKER_TESTING){
             // special case of stage maker state
-            stageMaker.testing = false;
+            currentState = GAME_STATUS_STAGE_MAKER;
             commandClearStage->execute();
             return;
         }
@@ -240,7 +242,7 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             break;
         case(Qt::Key_M):
             commandClearStage->execute();
-            stageMaker.active = !stageMaker.active;
+            currentState = GAME_STATUS_STAGE_MAKER;
             cursor.setCursorState(STAGEMMAKER);
             break;
         case(Qt::Key_Plus):
@@ -573,7 +575,7 @@ void GameDialog::paintEvent(QPaintEvent*) {
     }
 
     // Stage Maker MODE!
-    if(stageMaker.active){
+    if(currentState == GAME_STATUS_STAGE_MAKER_TESTING || currentState == GAME_STATUS_STAGE_MAKER){
         stageMaker.draw(&painter);
     }
 
@@ -607,7 +609,7 @@ void GameDialog::paintEvent(QPaintEvent*) {
         }
 
         // draw status bar
-        if(stageMaker.testing || !stageMaker.active)
+        if(currentState == GAME_STATUS_IN_GAME)
             statusBar.draw(&painter);
 
         // draw debug info if needed
@@ -636,7 +638,7 @@ int GameDialog::get_collided(Bullet*& b, AlienBase*& root) {
         if(score > 0){
             int r = c->get_scale() * 20;
             // randomly generate a powerup after killing an alien
-            if(GameDialog::randInt(0, 100) > (100 - POWERUP_DROP_RATE)){ // 35% drop rate
+            if(GameDialog::randInt(0, 100) > (100 - powerUpDropRate)){ // 35% drop rate
                 powerups.push_back(Powerup::generateRandomPowerup(b->get_x(), b->get_y() - r*2, r));
             }
         }
@@ -713,9 +715,8 @@ void GameDialog::printDebugInfo(QPainter* p){
     p->drawText(20, line_height * 4, str);
 }
 
-// HELPER FUNCTION
-int GameDialog::randInt(int low, int high)
-{
+// HELPER FUNCTION for random number generate
+int GameDialog::randInt(int low, int high){
     // Random number between low and high
     return qrand() % ((high + 1) - low) + low;
 }
