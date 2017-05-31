@@ -78,8 +78,7 @@ void game::GameMenu::on_leaderBoardBtn_clicked()
 
 void game::GameMenu::on_startGameBtn_clicked(){
     gDialog->currentState = GAME_STATUS_IN_GAME;
-    gDialog->curStageNum = 1;
-    gDialog->generateAliens(gDialog->c->getSwarmList()[1]);
+    gDialog->curStageNum = 0;
     close();
 }
 

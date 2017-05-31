@@ -74,13 +74,10 @@ GameDialog::GameDialog(QWidget* parent)
     shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
     shipFiringSound.setVolume(0.3);
 
-    // set the stage
-    if(c->getSwarmList().size() <= 1)
-        curStageNum = 0; // default stage 0 (legacy mode)
-    else
-        curStageNum = 1;
+    curStageNum = 0; // default stage 0 (legacy mode)
     // ALIENS
-    generateAliens(c->getSwarmList()[curStageNum]);
+//    generateAliens(c->getSwarmList()[curStageNum]);
+
 
     // SET BACKGROUND
     setStyleSheet("background-color: #000000;");
@@ -90,13 +87,16 @@ GameDialog::GameDialog(QWidget* parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
     timer->start(static_cast<int>(this->frames * timerModifier));
-
     // track mouse for extension
     this->setMouseTracking(true);
+    // setup transition scence
+    stageTransition = false;
+    stageTransitionBox = QRect(SCALEDWIDTH, SCALEDHEIGHT*0.3, SCALEDWIDTH*0.5, SCALEDHEIGHT*0.1);
 
     update();
     initCommands();
     stageMaker.init();
+    commandClearStage->execute();
 
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
@@ -295,11 +295,38 @@ void GameDialog::showScore() {
     menu->openScore();
 }
 
+void GameDialog::requestName(QString info){
+    leaderBoardNameRequest.ui->infoText->setText(info);
+    leaderBoardNameRequest.show();
+}
+
 // FOLLOWING EACH INSTRUCTION TO FRAME - for PLAYER ship.
 void GameDialog::nextFrame() {
-
     if (!paused) {
         if(currentState == GAME_STATUS_IN_GAME || currentState == GAME_STATUS_STAGE_MAKER_TESTING){
+            if(currentState == GAME_STATUS_IN_GAME && countAliens(swarms) <= 0){
+                // go to next stage.
+                if(!stageTransition)
+                    // see if there's a next stage
+                    if(curStageNum + 1 < c->getSwarmList().size()){
+                        stageTransition = true;
+                        stageTransitionBox.moveTo(SCALEDWIDTH, stageTransitionBox.y());
+                        ++curStageNum;
+                    }else{
+                        // finished all stage!
+                        currentState = GAME_STATUS_TITLE_SCREEN;
+                        requestName("You WON!!! Congratuations, enter your name for the leader board!");
+                    }
+                else{
+                    stageTransitionBox.moveTo(stageTransitionBox.x() - 15, stageTransitionBox.y());
+                // only starts when the stage transition box has pass through entire screen
+                    if(stageTransitionBox.right() < 0){
+                        stageTransition = false;
+                        // push all aliens
+                        generateAliens(c->getSwarmList()[curStageNum]);
+                    }
+                }
+            }
             Config* c = Config::getInstance();
 
             QStringList instruct = c->get_instructs();
@@ -389,7 +416,7 @@ void GameDialog::nextFrame() {
                         ship->get_x()+ship->get_image().width() > p.x() &&
                         ship->get_y() < p.y()+p.radius*2 &&
                         ship->get_y()+ship->get_image().height() > p.y()){
-
+                    laserBeam.exists = false;
                     //apply power up to ship and delete powerups
                     switch(p.type){
                     case(PenPowerup):
@@ -582,6 +609,19 @@ void GameDialog::paintEvent(QPaintEvent*) {
         painter.setFont(f);
         painter.drawText(0, SCALEDHEIGHT*0.4, SCALEDWIDTH, SCALEDHEIGHT*0.6, Qt::AlignCenter, "Press [ESC] to enter menu");
         return;
+    }
+
+    if(stageTransition){
+        painter.save();
+        QFont f = painter.font();
+        f.setPixelSize(100);
+        f.setBold(true);
+        painter.setFont(f);
+        // draw the transition scence
+        painter.setPen(Qt::red);
+        QString str = "Stage " + QString::number(curStageNum);
+        painter.drawText(stageTransitionBox, Qt::AlignCenter, str);
+        painter.restore();
     }
 
     // Stage Maker MODE!

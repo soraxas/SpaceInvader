@@ -58,7 +58,8 @@ SOURCES += main.cpp\
     stagemaker.cpp \
     makerstate.cpp \
     commandclearstage.cpp \
-    instructionirequest.cpp
+    instructionirequest.cpp \
+    leaderboardnamerequest.cpp
 
 HEADERS  += \
     base.h \
@@ -95,11 +96,13 @@ HEADERS  += \
     stagemaker.h \
     makerstate.h \
     commandclearstage.h \
-    instructionirequest.h
+    instructionirequest.h \
+    leaderboardnamerequest.h
 
 FORMS    += dialog.ui \
     gamemenu.ui \
-    instructionrequest.ui
+    instructionrequest.ui \
+    leaderboardnamerequest.ui
 
 RESOURCES += \
     resources.qrc

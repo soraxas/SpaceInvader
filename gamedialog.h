@@ -14,6 +14,7 @@
 #include "gamemenu.h"
 #include "powerup.h"
 #include "stagemaker.h"
+#include "leaderboardnamerequest.h"
 
 #include "command.h"
 #include "commandgamestart.h"
@@ -54,6 +55,9 @@ public:
     QSoundEffect shipFiringSound;
     int next_instruct;
 
+    // finished game, get info (name)
+    void requestName(QString info);
+
     // keys
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
@@ -88,6 +92,10 @@ public:
     bool legacyMode; // indicates if the game is running in the Stage 2 version
     int curStageNum;
 
+    // transition of each stage
+    QRect stageTransitionBox;
+    bool stageTransition;
+
     // internal game management
     std::vector<Explosion> explosions;
     std::vector<BarrierBlock> barriers;
@@ -101,6 +109,7 @@ public:
     static void SeedRandInt();
 
     GameMenu gameMenu;
+    LeaderBoardNameRequest leaderBoardNameRequest;
     bool updateBullets_barrierChkHelper(int x, int y);
     void printDebugInfo(QPainter* p);
     bool playerOverride; //override the movement within config file if key pressed LEFT, RIGHT or SPACEBAR
