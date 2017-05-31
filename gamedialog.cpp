@@ -76,7 +76,7 @@ GameDialog::GameDialog(QWidget* parent)
 
     curStageNum = 0; // default stage 0 (legacy mode)
     // ALIENS
-//    generateAliens(c->getSwarmList()[curStageNum]);
+    //    generateAliens(c->getSwarmList()[curStageNum]);
 
 
     // SET BACKGROUND
@@ -320,7 +320,7 @@ void GameDialog::nextFrame() {
                     }
                 else{
                     stageTransitionBox.moveTo(stageTransitionBox.x() - 15, stageTransitionBox.y());
-                // only starts when the stage transition box has pass through entire screen
+                    // only starts when the stage transition box has pass through entire screen
                     if(stageTransitionBox.right() < 0){
                         stageTransition = false;
                         // push all aliens
@@ -328,120 +328,121 @@ void GameDialog::nextFrame() {
                     }
                 }
             }
-            Config* c = Config::getInstance();
+            if(!ship->dead){
+                Config* c = Config::getInstance();
 
-            QStringList instruct = c->get_instructs();
-            if (next_instruct >= instruct.size()) {
-                next_instruct = next_instruct % instruct.size();
-            }
-            QString ins = instruct[next_instruct];
-            next_instruct++;
+                QStringList instruct = c->get_instructs();
+                if (next_instruct >= instruct.size()) {
+                    next_instruct = next_instruct % instruct.size();
+                }
+                QString ins = instruct[next_instruct];
+                next_instruct++;
 
-            if(!playerOverride){
-                if (ins == "Left") {
-                    ship->move_left();
-                } else if (ins == "Right") {
-                    ship->move_right();
-                } else if (ins == "Shoot") {
-                    Bullet* b = this->ship->shoot();
-                    if(b){
-                        bullets.push_back(b);
-                        this->shipFiringSound.play();
-                    }else{
-
-                    }
-                }
-            }else{ // use user input keys
-                if (pressedKeys[Qt::Key_Left] || pressedKeys[Qt::Key_A]) {
-                    ship->move_left();
-                }
-                if (pressedKeys[Qt::Key_Right] || pressedKeys[Qt::Key_D]) {
-                    ship->move_right();
-                }
-                if (pressedKeys[Qt::Key_Space]) {
-                    // special case of laser shooting
-                    if(ship->cannonType == Laser && ship->cannonAmmo > 0){
-                        laserBeam.exists = true;
-                        laserBeam.originX = ship->get_x();
-                        laserBeam.originY = ship->get_y();
-                        laserBeam.width = ship->get_image().width() * 0.18  ;
-                        ship->cannonAmmo -= 2;
-                        if(ship->cannonAmmo <= 0){
-                            ship->cannonType = Normal;
-                            laserBeam.exists = false;
-                        }
-                    }else{
+                if(!playerOverride){
+                    if (ins == "Left") {
+                        ship->move_left();
+                    } else if (ins == "Right") {
+                        ship->move_right();
+                    } else if (ins == "Shoot") {
                         Bullet* b = this->ship->shoot();
                         if(b){
                             bullets.push_back(b);
                             this->shipFiringSound.play();
+                        }else{
+
                         }
                     }
-                }
-            }
-            // check collision of laser with alien
-            // loop through the recursive aliens, put in stack first
-            if(laserBeam.exists){
-                std::stack<AlienBase*> stack;
-                stack.push(swarms);
-                while(stack.size() > 0){
-                    AlienBase* root = stack.top();
-                    stack.pop();
-                    for(AlienBase* child: root->getAliens()){
-                        if(child->getAliens().size() == 0){
-                            // base case, check for collision
-                            if(child->get_x() > laserBeam.originX && child->get_x() < laserBeam.originX + laserBeam.width){
-                                // create explosion at the place of alien
-                                explosions.push_back(Explosion(child->get_x()+child->get_image().width()/2,
-                                                               child->get_y()+child->get_image().height()/5,
-                                                               child->get_image().height()*1.2, SmallExplosion));
-                                addBullets(child->react());
-                                this->gameScore += child->get_score();
-                                root->remove(child);
-                                break;
+                }else{ // use user input keys
+                    if (pressedKeys[Qt::Key_Left] || pressedKeys[Qt::Key_A]) {
+                        ship->move_left();
+                    }
+                    if (pressedKeys[Qt::Key_Right] || pressedKeys[Qt::Key_D]) {
+                        ship->move_right();
+                    }
+                    if (pressedKeys[Qt::Key_Space]) {
+                        // special case of laser shooting
+                        if(ship->cannonType == Laser && ship->cannonAmmo > 0){
+                            laserBeam.exists = true;
+                            laserBeam.originX = ship->get_x();
+                            laserBeam.originY = ship->get_y();
+                            laserBeam.width = ship->get_image().width() * 0.18  ;
+                            ship->cannonAmmo -= 2;
+                            if(ship->cannonAmmo <= 0){
+                                ship->cannonType = Normal;
+                                laserBeam.exists = false;
                             }
                         }else{
-                            stack.push(child);
+                            Bullet* b = this->ship->shoot();
+                            if(b){
+                                bullets.push_back(b);
+                                this->shipFiringSound.play();
+                            }
                         }
                     }
                 }
-            }
 
-
-            // check collision of powerups with ship
-            std::vector<Powerup>::iterator pit = powerups.begin();
-            while (pit != powerups.end()) {
-                Powerup p = (*pit);
-                // checking if those two overlaps
-                if(ship->get_x() < (p.x()+p.radius*2) &&
-                        ship->get_x()+ship->get_image().width() > p.x() &&
-                        ship->get_y() < p.y()+p.radius*2 &&
-                        ship->get_y()+ship->get_image().height() > p.y()){
-                    laserBeam.exists = false;
-                    //apply power up to ship and delete powerups
-                    switch(p.type){
-                    case(PenPowerup):
-                        cursor.setCursorState(PEN);
-                        break;
-                    case(LaserPowerup):
-                        ship->cannonType = Laser;
-                        ship->cannonAmmo = 200;
-                        break;
-                    case(MachineGunPowerup):
-                        ship->cannonType = MachineGun;
-                        ship->cannonAmmo = 50;
-                        break;
+                // check collision of laser with alien
+                // loop through the recursive aliens, put in stack first
+                if(laserBeam.exists){
+                    std::stack<AlienBase*> stack;
+                    stack.push(swarms);
+                    while(stack.size() > 0){
+                        AlienBase* root = stack.top();
+                        stack.pop();
+                        for(AlienBase* child: root->getAliens()){
+                            if(child->getAliens().size() == 0){
+                                // base case, check for collision
+                                if(child->get_x() > laserBeam.originX && child->get_x() < laserBeam.originX + laserBeam.width){
+                                    // create explosion at the place of alien
+                                    explosions.push_back(Explosion(child->get_x()+child->get_image().width()/2,
+                                                                   child->get_y()+child->get_image().height()/5,
+                                                                   child->get_image().height()*1.2, SmallExplosion));
+                                    addBullets(child->react());
+                                    this->gameScore += child->get_score();
+                                    root->remove(child);
+                                    break;
+                                }
+                            }else{
+                                stack.push(child);
+                            }
+                        }
                     }
-                    pit = powerups.erase(pit);
-                    continue;
-                    // power ups out of screen
-                }else if (p.y() > SCALEDHEIGHT) {
-                    pit = powerups.erase(pit);
-                    continue;
                 }
-                ++pit;
-            }
 
+                // check collision of powerups with ship
+                std::vector<Powerup>::iterator pit = powerups.begin();
+                while (pit != powerups.end()) {
+                    Powerup p = (*pit);
+                    // checking if those two overlaps
+                    if(ship->get_x() < (p.x()+p.radius*2) &&
+                            ship->get_x()+ship->get_image().width() > p.x() &&
+                            ship->get_y() < p.y()+p.radius*2 &&
+                            ship->get_y()+ship->get_image().height() > p.y()){
+                        laserBeam.exists = false;
+                        //apply power up to ship and delete powerups
+                        switch(p.type){
+                        case(PenPowerup):
+                            cursor.setCursorState(PEN);
+                            break;
+                        case(LaserPowerup):
+                            ship->cannonType = Laser;
+                            ship->cannonAmmo = 200;
+                            break;
+                        case(MachineGunPowerup):
+                            ship->cannonType = MachineGun;
+                            ship->cannonAmmo = 50;
+                            break;
+                        }
+                        pit = powerups.erase(pit);
+                        continue;
+                        // power ups out of screen
+                    }else if (p.y() > SCALEDHEIGHT) {
+                        pit = powerups.erase(pit);
+                        continue;
+                    }
+                    ++pit;
+                }
+            }
             updateBullets(); //update bullets
             ship->update(); //update ship
             if(!legacyMode){
@@ -512,22 +513,30 @@ void GameDialog::updateBullets()
                                                b->get_image().height()*1.4, SmallExplosion));
             }
         } else if (score == -1) {
-            if(!legacyMode)
-                explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
-                                               ship->get_y()+ship->get_image().height()/5,
-                                               ship->get_image().width()*1.4, ShipExplosion));
-            // DEAD SHIP!
             if(legacyMode)
                 close();
+            if(ship->dead){
+                b->move();
+                return;
+            }
+
+            explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
+                                           ship->get_y()+ship->get_image().height()/5,
+                                           ship->get_image().width()*1.4, ShipExplosion));
+            // DEAD SHIP!
+
             ship->dead = true;
             delete b;
             bullets.erase(bullets.begin() + i);
             i--;
+            requestName("Oh no you are DEAD. Enter your name to compare to others.");
+            return;
         } else
         {
             b->move();// we move at the end so that we can see collisions before the game ends
         }
-        gameScore += score;
+        if(score > 0)
+            gameScore += score;
 
 
     }
@@ -570,6 +579,9 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
                 explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
                                                ship->get_y()+ship->get_image().height()/5,
                                                ship->get_image().width()*1.4, ShipExplosion));
+
+                requestName("Oh no you are DEAD. Enter your name to compare to others.");
+                return;
             }
         } else {
             checkSwarmCollisions(childList[i]);
@@ -633,7 +645,8 @@ void GameDialog::paintEvent(QPaintEvent*) {
     if(currentState == GAME_STATUS_IN_GAME || currentState == GAME_STATUS_STAGE_MAKER_TESTING){
 
         // SHIP
-        painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
+        if(!ship->dead)
+            painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
 
         // loop through each alien swarm and draw
         paintSwarm(painter, swarms);
