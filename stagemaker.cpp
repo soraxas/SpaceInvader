@@ -1,10 +1,21 @@
+#include "gamemenu.h"
+
 #include "stagemaker.h"
 #include "gamedialog.h"
 #define BLOCK_DIMENSION 30
 
 namespace game {
-StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog), active(false), holdingObject(SMAKER_HOLDING_NONE)
-{}
+
+
+StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog), active(false),
+    holdingObject(SMAKER_HOLDING_NONE)
+{
+
+}
+
+StageMaker::~StageMaker(){
+
+}
 
 void StageMaker::init(){
     QPixmap pixmap;
@@ -72,12 +83,15 @@ void StageMaker::draw(QPainter* p){
             p->drawRect(obj.second.hitBox);
     }
 
-
     // draw all the placed object
     for(auto&& obj : objects){
-        if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX)
+        if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
+            //            p->drawText(obj.hitBox.x(), obj.hitBox.y())
             p->drawRect(obj.hitBox);
-        else{
+            // draw the inner text
+            p->setPen(Qt::black);
+            p->drawText(obj.hitBox, Qt::AlignCenter, obj.instructions);
+        }else{
             p->drawPixmap(obj.hitBox.x(), obj.hitBox.y(), obj.pixmap);
             // if it is connected, also draw that line
             if(obj.connected){
@@ -168,30 +182,39 @@ void StageMaker::buttonReleased(){
                     }
                 }
             }
-        }
-        // drop the currently holding object at this location (if valid)
-        SMakerPlacedObject obj = objectTemplate[holdingObject];
-        // calculate the final location
-        int x = gDialog->cursor.getCurState()->cursorX;
-        int y = gDialog->cursor.getCurState()->cursorY;
-        if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
-            x -= obj.hitBox.width()/2;
-            y -= obj.hitBox.height()/2;
-        }else if (obj.type == SMAKER_HOLDING_BARRIER_BLOCK){
-            // we need to aligh it to the block grid
-            x -= obj.pixmap.width()/2;
-            y -= obj.pixmap.height()/2;
-            x -= x % BLOCK_DIMENSION;
-            y -= y % BLOCK_DIMENSION;
         }else{
-            x -= obj.pixmap.width()/2;
-            y -= obj.pixmap.height()/2;
+            // drop the currently holding object at this location (if valid)
+            SMakerPlacedObject obj = objectTemplate[holdingObject];
+            // calculate the final location
+            int x = gDialog->cursor.getCurState()->cursorX;
+            int y = gDialog->cursor.getCurState()->cursorY;
+            if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
+                x -= obj.hitBox.width()/2;
+                y -= obj.hitBox.height()/2;
+            }else if (obj.type == SMAKER_HOLDING_BARRIER_BLOCK){
+                // we need to aligh it to the block grid
+                x -= obj.pixmap.width()/2;
+                y -= obj.pixmap.height()/2;
+                x -= x % BLOCK_DIMENSION;
+                y -= y % BLOCK_DIMENSION;
+            }else{
+                x -= obj.pixmap.width()/2;
+                y -= obj.pixmap.height()/2;
+            }
+            obj.hitBox.moveTo(x, y);
+            // place the new object
+            objects.push_back(obj);
+
+            if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
+                // request instruction list from dialog box
+                req.instructionBox = &objects.back(); // set the requesting instruction box pointer
+                req.show();
+            }
         }
-        obj.hitBox.moveTo(x, y);
-        // place the new object
-        objects.push_back(obj);
     }
     holdingObject = SMAKER_HOLDING_NONE;
 }
 
 }
+
+

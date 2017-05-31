@@ -3,6 +3,9 @@
 
 #include <QPainter>
 #include <vector>
+#include <QDialog>
+#include "ui_instructionrequest.h"
+#include "instructionirequest.h"
 
 namespace game {
 class GameDialog;
@@ -22,12 +25,14 @@ struct SMakerPlacedObject{
     // determine if the object is connect to another object (to define instructions of swarms)
     bool connected;
     QPoint connectedPoint;
+    QString instructions;
 };
 
 class StageMaker
 {
 public:
     StageMaker(GameDialog* gDialog);
+    ~StageMaker();
     void init();
     void draw(QPainter* p);
     void update();
@@ -43,7 +48,14 @@ public:
     GameDialog* gDialog;
     bool active;
     std::vector<SMakerPlacedObject> objects;
+    //    Ui_InstructionRequest* req;
+    //    QDialog* requestUi;
+    InstructionRequest req;
 };
+
+
+
+
 }
 
 #endif // STAGEMAKER_H

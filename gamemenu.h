@@ -3,10 +3,11 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui { // forward declarate from auto generated header
 class GameMenu;
 }
 
+namespace game{
 class GameMenu : public QDialog
 {
     Q_OBJECT
@@ -21,5 +22,5 @@ private slots:
 private:
     Ui::GameMenu *ui;
 };
-
+}
 #endif // GAMEMENU_H

@@ -57,7 +57,8 @@ SOURCES += main.cpp\
     commonrestartstage.cpp \
     stagemaker.cpp \
     makerstate.cpp \
-    commandclearstage.cpp
+    commandclearstage.cpp \
+    instructionirequest.cpp
 
 HEADERS  += \
     base.h \
@@ -93,10 +94,12 @@ HEADERS  += \
     commonrestartstage.h \
     stagemaker.h \
     makerstate.h \
-    commandclearstage.h
+    commandclearstage.h \
+    instructionirequest.h
 
 FORMS    += dialog.ui \
-    gamemenu.ui
+    gamemenu.ui \
+    instructionrequest.ui
 
 RESOURCES += \
     resources.qrc

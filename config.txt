@@ -9,7 +9,7 @@ x=200
 instructions=Right,Shoot,Right,Right,Right,Right,Shoot, Right, Left, Shoot,Left,Right,Right,Right,Left,Shoot, Left, Left, Shoot, Left,Left
 frames=50
 
-# This tag [STAGE XX] also trigger the new functionality 
+# This tag [STAGE XX] triggers the new functionality 
 [STAGE 1]
 [SWARM]
 position=400 200, 400 230, 400 300, 420 320, 440 340, 460 340, 480 320, 500 300, 500 230, 500 200
@@ -47,6 +47,5 @@ shoot=30
 position=200 50
 type=dumb
 move=L,R,L,L,R,L,R,L,R,L,R,L
-shoot=30
 
 
