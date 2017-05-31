@@ -18,7 +18,5 @@ void CommandGameStart::execute(){
 
     // revert cursor state to whatever it was before
     gDialog->cursor.setCursorState(gDialog->cursor.preState);
-    // show the main game menu
-    gDialog->gameMenu.hide();
 }
 }

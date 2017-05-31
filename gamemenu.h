@@ -26,6 +26,18 @@ private slots:
 
     void on_applySetting_clicked();
 
+
+
+    void on_exitBtn_clicked();
+
+    void on_stageMakerBtn_clicked();
+
+    void on_leaderBoardBtn_clicked();
+
+    void on_startGameBtn_clicked();
+
+    void on_returnToTitleBtn_clicked();
+
 private:
     GameDialog* gDialog;
     Ui::GameMenu *ui;

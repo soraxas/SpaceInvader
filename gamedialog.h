@@ -76,7 +76,6 @@ public:
 
     // pausing & menu
     bool paused;
-    void pauseStart();
     Menu* menu;
     int countAliens(AlienBase* root);
 

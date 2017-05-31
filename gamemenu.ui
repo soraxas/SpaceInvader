@@ -23,21 +23,21 @@
    <item row="2" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="returnToTitleBtn">
+       <property name="text">
+        <string>Return to Title Screen</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="startGameBtn">
        <property name="text">
         <string>Start Game</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>Select Stage</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="leaderBoardBtn">
        <property name="text">
         <string>Leader Board</string>
        </property>
@@ -221,14 +221,14 @@
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="stageMakerBtn">
        <property name="text">
         <string>Stage Maker</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_6">
+      <widget class="QPushButton" name="exitBtn">
        <property name="text">
         <string>Exit Game</string>
        </property>

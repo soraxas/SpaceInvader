@@ -18,7 +18,5 @@ void CommandGamePause::execute(){
 
     // revert cursor state to whatever it was before
     gDialog->cursor.setCursorState(NORMAL);
-    // show the main game menu
-    gDialog->gameMenu.show();
 }
 }

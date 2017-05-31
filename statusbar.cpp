@@ -142,7 +142,7 @@ void StatusBar::draw(QPainter* p){
     p->setFont(f);
     QString str;
     if(gd->ship->cannonAmmo < 0)
-        str = "inf";
+        str = "∞";
     else
         str = QString::number(gd->ship->cannonAmmo);
     QPixmap pixmap;
