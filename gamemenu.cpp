@@ -57,6 +57,7 @@ void game::GameMenu::on_exitBtn_clicked()
 void game::GameMenu::on_stageMakerBtn_clicked()
 {
     if(gDialog->currentState != GAME_STATUS_STAGE_MAKER){
+        gDialog->stageTransitionBox.moveTo(gDialog->SCALEDWIDTH, gDialog->stageTransitionBox.y());
         gDialog->currentState = GAME_STATUS_STAGE_MAKER;
         gDialog->commandClearStage->execute();
         gDialog->cursor.setCursorState(STAGEMMAKER);

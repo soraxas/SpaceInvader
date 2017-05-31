@@ -91,7 +91,7 @@ GameDialog::GameDialog(QWidget* parent)
     this->setMouseTracking(true);
     // setup transition scence
     stageTransition = false;
-    stageTransitionBox = QRect(SCALEDWIDTH, SCALEDHEIGHT*0.3, SCALEDWIDTH*0.5, SCALEDHEIGHT*0.1);
+    stageTransitionBox = QRect(SCALEDWIDTH, SCALEDHEIGHT*0.3, SCALEDWIDTH*0.5, SCALEDHEIGHT*0.3);
 
     update();
     initCommands();
@@ -314,6 +314,7 @@ void GameDialog::nextFrame() {
                         ++curStageNum;
                     }else{
                         // finished all stage!
+                        laserBeam.exists = false;
                         currentState = GAME_STATUS_TITLE_SCREEN;
                         requestName("You WON!!! Congratuations, enter your name for the leader board!");
                     }
