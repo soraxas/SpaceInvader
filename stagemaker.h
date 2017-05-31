@@ -38,15 +38,21 @@ public:
     void update();
     void buttonPressed();
     void buttonReleased();
+    void clearAll();
+    void testStage();
 
     // available objects template
     std::map<SMakerObjectType, SMakerPlacedObject> objectTemplate;
     QPoint lineOrigin;
 
     // variables
+    QRect clearAllBtn;
+    QRect testStageBtn;
     SMakerObjectType holdingObject;
     GameDialog* gDialog;
     bool active;
+private:
+    void drawInstructionBox(QPainter* p, const QRect& hitBox);
     std::vector<SMakerPlacedObject> objects;
     //    Ui_InstructionRequest* req;
     //    QDialog* requestUi;

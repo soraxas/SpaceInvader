@@ -63,11 +63,18 @@ void StageMaker::init(){
 
     // Instruction box
     obj = {};
-    obj.hitBox = QRect(gDialog->SCALEDWIDTH * 0.6, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
+    obj.hitBox = QRect(gDialog->SCALEDWIDTH * 0.55, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
                        gDialog->SCALEDWIDTH * 0.2, gDialog->STATUSBARHEIGHT*0.6);
     obj.type = SMAKER_HOLDING_INSTRUCTION_BOX;
     objectTemplate[obj.type] = obj;
+
+    // Now initialise button for tool bar
+    clearAllBtn = QRect(gDialog->SCALEDWIDTH * 0.8, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
+                        gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
+    testStageBtn = QRect(gDialog->SCALEDWIDTH * 0.9, gDialog->SCALEDHEIGHT + gDialog->STATUSBARHEIGHT*0.2,
+                        gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
 }
+
 
 void StageMaker::draw(QPainter* p){
 
@@ -79,15 +86,15 @@ void StageMaker::draw(QPainter* p){
     for(auto&& obj : objectTemplate){
         if(obj.second.type != SMAKER_HOLDING_INSTRUCTION_BOX)
             p->drawPixmap(obj.second.hitBox.x(), obj.second.hitBox.y(), obj.second.pixmap);
-        else
-            p->drawRect(obj.second.hitBox);
+        else{
+            drawInstructionBox(p, obj.second.hitBox);
+        }
     }
 
     // draw all the placed object
     for(auto&& obj : objects){
         if(obj.type == SMAKER_HOLDING_INSTRUCTION_BOX){
-            //            p->drawText(obj.hitBox.x(), obj.hitBox.y())
-            p->drawRect(obj.hitBox);
+            drawInstructionBox(p, obj.hitBox);
             // draw the inner text
             p->setPen(Qt::black);
             p->drawText(obj.hitBox, Qt::AlignCenter, obj.instructions);
@@ -102,13 +109,25 @@ void StageMaker::draw(QPainter* p){
         }
     }
 
+    p->setPen(Qt::black);
+    p->setBrush(Qt::red);
+    // draw the button on tool bar
+    p->drawRect(clearAllBtn);
+    p->setPen(Qt::black);
+    p->drawText(clearAllBtn, Qt::AlignCenter, "Clear All");
+
+    p->setBrush(Qt::green);
+    // draw the button on tool bar
+    p->drawRect(testStageBtn);
+    p->drawText(testStageBtn, Qt::AlignCenter, "Test Stage");
+
     // draw the thing on the cursor
     if(holdingObject != SMAKER_HOLDING_NONE){
         if(holdingObject == SMAKER_HOLDING_INSTRUCTION_BOX){
             QRect instructionBox= objectTemplate[holdingObject].hitBox;
             instructionBox.moveTo(gDialog->cursor.getCurState()->cursorX - objectTemplate[holdingObject].hitBox.width()/2,
                                   gDialog->cursor.getCurState()->cursorY - objectTemplate[holdingObject].hitBox.height()/2);
-            p->drawRect(instructionBox);
+            drawInstructionBox(p, instructionBox);
         }else if(holdingObject == SMAKER_HOLDING_LINE) {
             // draw a line from origin point to the current cursor location
             p->setPen(Qt::yellow);
@@ -120,6 +139,14 @@ void StageMaker::draw(QPainter* p){
 
         }
     }
+}
+
+void StageMaker::drawInstructionBox(QPainter* p, const QRect& hitBox){
+    p->setBrush(Qt::gray);
+    p->setPen(Qt::yellow);
+    p->drawText(hitBox.x(), hitBox.y()-hitBox.height(), hitBox.width(), hitBox.height(),
+                Qt::AlignBottom, "INSTRUCTIONS");
+    p->drawRect(hitBox);
 }
 
 void StageMaker::update(){
@@ -137,6 +164,12 @@ void StageMaker::buttonPressed(){
                 return;
             }
         }
+
+        // see if the cursor clicked on any of the button, if so run the corresponding functions
+        if(clearAllBtn.contains(gDialog->cursor.getCurState()->cursorX, gDialog->cursor.getCurState()->cursorY))
+            clearAll();
+        else if(testStageBtn.contains(gDialog->cursor.getCurState()->cursorX, gDialog->cursor.getCurState()->cursorY))
+            testStage();
     }else{
         // CURSOR CLICKED ON MAIN SCREEN:
         // loop through all objects, if the cursor's x and y is within an object's hit box, select that object
@@ -213,6 +246,14 @@ void StageMaker::buttonReleased(){
         }
     }
     holdingObject = SMAKER_HOLDING_NONE;
+}
+
+void StageMaker::clearAll(){
+    objects.clear();
+}
+
+void StageMaker::testStage(){
+
 }
 
 }
