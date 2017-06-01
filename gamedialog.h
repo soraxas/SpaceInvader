@@ -48,9 +48,7 @@ public:
 
     QTimer* timer;
     void paintEvent(QPaintEvent* event);
-    void paintBullets(QPainter& painter);
     void updateBullets();
-    void paintSwarm(QPainter& painter, AlienBase*& root);
     void checkSwarmCollisions(AlienBase*& root);
     // ship and swarms
     Ship* ship;
@@ -138,6 +136,13 @@ public slots:
     void nextFrame();
     // menus
     void showScore();
+private:
+    // helper functions for painting diferent objects
+    void paintBullets(QPainter& painter);
+    void paintSwarm(QPainter& painter, AlienBase*& root);
+    void paintLaserBeam(QPainter& painter);
+    void paintTitleScreen(QPainter& painter);
+    void paintStageTransition(QPainter& painter);
 };
 
 }

@@ -23,36 +23,66 @@ namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
-      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this) {
-
+      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this), swarms(NULL) {
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
-    STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
-    legacyMode = false;
-    currentState = GAME_STATUS_TITLE_SCREEN;
-    if(c->getSwarmList().size() <= 1){
-        // it is an old-style config file. Use legacy Mode
-        legacyMode = true;
-        STATUSBARHEIGHT = 0;
-    }
-    if(legacyMode){
-        // if legacy, always in game
-        currentState = GAME_STATUS_IN_GAME;
-    }
-    laserBeam.exists = false;
-    swarms = NULL;
     SCALEDWIDTH = c->get_SCALEDWIDTH();
     SCALEDHEIGHT = c->get_SCALEDHEIGHT();
+    STATUSBARHEIGHT = STATUS_BAR_HEIGHT;
     this->frames = c->get_frames();
-    this->playerOverride = false;
-    this->bg = Background(SCALEDWIDTH, SCALEDHEIGHT + STATUSBARHEIGHT);
+    // seed the random number generator
+    GameDialog::SeedRandInt();
+
+    // initialise all vairables
+    laserBeam.exists = false;
+    legacyMode = false;
+    currentState = GAME_STATUS_TITLE_SCREEN;
     timerModifier = 1.0;
     powerUpDropRate = POWERUP_DROP_RATE;
-    GameDialog::SeedRandInt(); // seed the random number generator
-
+    playerOverride = false;
+    bg = Background(SCALEDWIDTH, SCALEDHEIGHT + STATUSBARHEIGHT);
+    paused = false;
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
+    timer->start(static_cast<int>(this->frames * timerModifier));
     // MENU
     QList<QPair<QString, int>> dummy;
     menu = new Menu(this, c->get_name(), this->gameScore, dummy);
+    // SET BACKGROUND
+    setStyleSheet("background-color: #000000;");
+    statusBar.buildBrush();
+    // track mouse for extension
+    this->setMouseTracking(true);
+    // setup transition scence
+    stageTransition = false;
+    stageTransitionBox = QRect(SCALEDWIDTH, SCALEDHEIGHT*0.3, SCALEDWIDTH*0.5, SCALEDHEIGHT*0.3);
+    // init internal variables
+    initCommands();
+    stageMaker.init();
+    curStageNum = 0; // default stage 0
+    // SHIP
+    QPixmap ship;
+    if(legacyMode)
+        ship.load(":/Images/ship.png");
+    else
+        ship.load(":/Images/ship_xwing.png");
+    this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
+    this->next_instruct = 0;
+    // SHIP SOUND
+    shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
+    shipFiringSound.setVolume(0.3);
+
+    commandClearStage->execute();
+    // test for legacy mode
+    if(c->getSwarmList().size() <= 1){
+        // if it is an old-style config file. Use legacy Mode
+        legacyMode = true;
+        STATUSBARHEIGHT = 0;
+        // if legacy, always in game
+        currentState = GAME_STATUS_IN_GAME;
+        QList<SwarmInfo> infos = c->getSwarmList()[0];
+        generateAliens(infos);
+    }
 
     // EXTENSION STAGE 1 PART 1 - RESCALE GAME SCREEN FOR SHIP SIZE
     this->setFixedWidth(SCALEDWIDTH);
@@ -61,43 +91,7 @@ GameDialog::GameDialog(QWidget* parent)
     gameMenu.setFixedWidth(SCALEDWIDTH*0.6);
     gameMenu.setFixedHeight((SCALEDHEIGHT + STATUSBARHEIGHT)*0.6);
 
-    // SHIP
-    QPixmap ship;
-    if(legacyMode){
-        ship.load(":/Images/ship.png");
-    }else{
-        ship.load(":/Images/ship_xwing.png");
-    }
-    this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
-    this->next_instruct = 0;
-    // SHIP SOUND
-    shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
-    shipFiringSound.setVolume(0.3);
-
-    curStageNum = 0; // default stage 0 (legacy mode)
-    // ALIENS
-    //    generateAliens(c->getSwarmList()[curStageNum]);
-
-
-    // SET BACKGROUND
-    setStyleSheet("background-color: #000000;");
-    statusBar.buildBrush();
-
-    paused = false;
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
-    timer->start(static_cast<int>(this->frames * timerModifier));
-    // track mouse for extension
-    this->setMouseTracking(true);
-    // setup transition scence
-    stageTransition = false;
-    stageTransitionBox = QRect(SCALEDWIDTH, SCALEDHEIGHT*0.3, SCALEDWIDTH*0.5, SCALEDHEIGHT*0.3);
-
     update();
-    initCommands();
-    stageMaker.init();
-    commandClearStage->execute();
-
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
     cursor.setCursorState(NORMAL);
@@ -299,6 +293,8 @@ void GameDialog::showScore() {
 }
 
 void GameDialog::requestName(QString info){
+    if(legacyMode) // do nothing in legacy mode
+        return;
     if(currentState != GAME_STATUS_IN_GAME)
         // do nothing if the player is not playing the game
         return;
@@ -614,27 +610,22 @@ void GameDialog::checkSwarmCollisions(AlienBase *&root)
     }
 }
 
-// PAINTING THE SHIP AND ANY BULLETS
-void GameDialog::paintEvent(QPaintEvent*) {
-    QPainter painter(this);
-    if(!legacyMode){
-        // Draw background first
-        bg.draw(&painter);
-
-        // draw laser beam
-        if(laserBeam.exists){
-            painter.setPen(Qt::NoPen);
-            // outer laser beam
-            painter.setBrush(Qt::blue);
-            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
-                             laserBeam.width, laserBeam.originY + ship->get_image().height()/2);
-            // inner laser beam
-            painter.setBrush(Qt::white);
-            painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/4, 0,
-                             laserBeam.width/2, laserBeam.originY + ship->get_image().height()/2);
-        }
+void GameDialog::paintLaserBeam(QPainter& painter){
+    // draw laser beam
+    if(laserBeam.exists){
+        painter.setPen(Qt::NoPen);
+        // outer laser beam
+        painter.setBrush(Qt::blue);
+        painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/2, 0,
+                         laserBeam.width, laserBeam.originY + ship->get_image().height()/2);
+        // inner laser beam
+        painter.setBrush(Qt::white);
+        painter.drawRect(laserBeam.originX + ship->get_image().width()/2 - laserBeam.width/4, 0,
+                         laserBeam.width/2, laserBeam.originY + ship->get_image().height()/2);
     }
+}
 
+void GameDialog::paintTitleScreen(QPainter& painter){
     // if it is in title screen, draw the title and ignore others
     if(currentState == GAME_STATUS_TITLE_SCREEN){
         QPixmap pixmap;
@@ -648,27 +639,44 @@ void GameDialog::paintEvent(QPaintEvent*) {
         painter.drawText(0, SCALEDHEIGHT*0.4, SCALEDWIDTH, SCALEDHEIGHT*0.6, Qt::AlignCenter, "Press [ESC] to enter menu");
         return;
     }
+}
 
-    if(stageTransition){
-        painter.save();
-        QFont f = painter.font();
-        f.setPixelSize(100);
-        f.setBold(true);
-        painter.setFont(f);
-        // draw the transition scence
-        painter.setPen(Qt::red);
-        QString str = "Stage " + QString::number(curStageNum);
-        painter.drawText(stageTransitionBox, Qt::AlignCenter, str);
-        painter.restore();
+void GameDialog::paintStageTransition(QPainter& painter){
+
+    painter.save();
+    QFont f = painter.font();
+    f.setPixelSize(100);
+    f.setBold(true);
+    painter.setFont(f);
+    // draw the transition scence
+    painter.setPen(Qt::red);
+    QString str = "Stage " + QString::number(curStageNum);
+    painter.drawText(stageTransitionBox, Qt::AlignCenter, str);
+    painter.restore();
+}
+
+// PAINTING THE SHIP AND ANY BULLETS
+void GameDialog::paintEvent(QPaintEvent*) {
+    QPainter painter(this);
+    //    if(legacyMode)
+    if(!legacyMode){
+        // Draw background first
+        bg.draw(&painter);
+
+        paintLaserBeam(painter);
+        paintTitleScreen(painter);
     }
+
+    // if it is currently transiting stage, draw the transititon animation
+    if(stageTransition)
+        paintStageTransition(painter);
 
     // Stage Maker MODE!
-    if(currentState == GAME_STATUS_STAGE_MAKER_TESTING || currentState == GAME_STATUS_STAGE_MAKER){
+    if(currentState == GAME_STATUS_STAGE_MAKER_TESTING || currentState == GAME_STATUS_STAGE_MAKER)
         stageMaker.draw(&painter);
-    }
+
 
     if(currentState == GAME_STATUS_IN_GAME || currentState == GAME_STATUS_STAGE_MAKER_TESTING){
-
         // SHIP
         if(!ship->dead)
             painter.drawPixmap(ship->get_x(), ship->get_y(), ship->get_image());
@@ -706,7 +714,6 @@ void GameDialog::paintEvent(QPaintEvent*) {
         // draw debug info if needed
         if(debugMode)
             printDebugInfo(&painter);
-
     }
 }
 
