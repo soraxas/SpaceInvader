@@ -15,6 +15,7 @@
 #include "powerup.h"
 #include "stagemaker.h"
 #include "leaderboardnamerequest.h"
+#include "leaderboard.h"
 
 #include "command.h"
 #include "commandgamestart.h"
@@ -105,6 +106,7 @@ public:
     LaserBeam laserBeam;
     StatusBar statusBar;
     Config* c;
+    LeaderBoard leaderBoard;
 
     // Helper function
     static int randInt(int low, int high);

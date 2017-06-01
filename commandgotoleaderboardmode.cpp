@@ -9,6 +9,8 @@ CommandGotoLeaderBoardMode::CommandGotoLeaderBoardMode(GameDialog* gDialog) : Co
 }
 
 void CommandGotoLeaderBoardMode::execute(){
+    // reload the leader board
+    gDialog->leaderBoard.reset();
     // set the state and change in-game status
     gDialog->currentState = GAME_STATUS_LEADER_BOARD;
     gDialog->commandClearStage->execute();

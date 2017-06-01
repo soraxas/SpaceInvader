@@ -63,7 +63,8 @@ SOURCES += main.cpp\
     commandgotogamemode.cpp \
     commandgotostagemakermode.cpp \
     commandgotoleaderboardmode.cpp \
-    commandgototitlescreenmode.cpp
+    commandgototitlescreenmode.cpp \
+    leaderboard.cpp
 
 HEADERS  += \
     base.h \
@@ -105,7 +106,8 @@ HEADERS  += \
     commandgotogamemode.h \
     commandgotostagemakermode.h \
     commandgotoleaderboardmode.h \
-    commandgototitlescreenmode.h
+    commandgototitlescreenmode.h \
+    leaderboard.h
 
 FORMS    += dialog.ui \
     gamemenu.ui \

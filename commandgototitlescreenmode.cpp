@@ -15,6 +15,7 @@ void CommandGotoTitleScreenMode::execute(){
     gDialog->stageTransitionBox.moveTo(gDialog->SCALEDWIDTH, gDialog->stageTransitionBox.y());
     gDialog->stageTransition = false;
     gDialog->curStageNum = 0;
+    gDialog->leaderBoard.reset();
 
     // change the menu item visibility
     gDialog->gameMenu.ui->startGameBtn->setHidden(false);

@@ -16,6 +16,7 @@
 
 #define CURSOR_BASE_RADIUS 50
 #define STATUS_BAR_HEIGHT 100
+#define LEADERBOARD_FILENAME "../SpaceInvaders/LEADERBOARD.sav"
 
 #define POWERUP_DROP_RATE 35 //35
 
@@ -23,7 +24,9 @@ namespace game {
 
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
-      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this), swarms(NULL) {
+      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this), swarms(NULL),
+      leaderBoardNameRequest(LEADERBOARD_FILENAME, this)
+{
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
     SCALEDWIDTH = c->get_SCALEDWIDTH();
@@ -72,6 +75,7 @@ GameDialog::GameDialog(QWidget* parent)
     shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
     shipFiringSound.setVolume(0.3);
 
+
     commandClearStage->execute();
     // test for legacy mode
     if(c->getSwarmList().size() <= 1){
@@ -83,7 +87,7 @@ GameDialog::GameDialog(QWidget* parent)
         QList<SwarmInfo> infos = c->getSwarmList()[0];
         generateAliens(infos);
     }
-
+    leaderBoard.init(SCALEDWIDTH, SCALEDHEIGHT + STATUSBARHEIGHT, LEADERBOARD_FILENAME);
     // EXTENSION STAGE 1 PART 1 - RESCALE GAME SCREEN FOR SHIP SIZE
     this->setFixedWidth(SCALEDWIDTH);
     this->setFixedHeight(SCALEDHEIGHT + STATUSBARHEIGHT);
@@ -485,6 +489,13 @@ void GameDialog::nextFrame() {
 
         }
             break;
+        case(GAME_STATUS_LEADER_BOARD):
+        {
+            leaderBoard.update();
+            if(leaderBoard.finished)
+                commandGoToTitleScreenMode->execute();
+        }
+            break;
         }
         if(!legacyMode)
             bg.nextFrame(); //update background
@@ -633,10 +644,12 @@ void GameDialog::paintTitleScreen(QPainter& painter){
         pixmap = pixmap.scaledToWidth(SCALEDWIDTH * 0.4);
         painter.drawPixmap( (SCALEDWIDTH - pixmap.width())/2, pixmap.height(), pixmap);
         painter.setPen(QColor::fromRgb(72, 240, 120));
-        QFont f = painter.font();
+        painter.save();
+        QFont f("Tahoma");
         f.setPixelSize(SCALEDWIDTH * 0.04);
         painter.setFont(f);
         painter.drawText(0, SCALEDHEIGHT*0.4, SCALEDWIDTH, SCALEDHEIGHT*0.6, Qt::AlignCenter, "Press [ESC] to enter menu");
+        painter.restore();
         return;
     }
 }
@@ -658,13 +671,17 @@ void GameDialog::paintStageTransition(QPainter& painter){
 // PAINTING THE SHIP AND ANY BULLETS
 void GameDialog::paintEvent(QPaintEvent*) {
     QPainter painter(this);
-    //    if(legacyMode)
     if(!legacyMode){
         // Draw background first
         bg.draw(&painter);
 
         paintLaserBeam(painter);
         paintTitleScreen(painter);
+    }
+
+    if(currentState == GAME_STATUS_LEADER_BOARD){
+        leaderBoard.draw(&painter);
+        return;
     }
 
     // if it is currently transiting stage, draw the transititon animation
