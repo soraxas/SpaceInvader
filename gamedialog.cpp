@@ -304,7 +304,6 @@ void GameDialog::requestName(QString info){
         return;
     leaderBoardNameRequest.ui->infoText->setText(info);
     leaderBoardNameRequest.show();
-    commandGoToLeaderBoardMode->execute();
 }
 
 // FOLLOWING EACH INSTRUCTION TO FRAME - for PLAYER ship.
@@ -345,10 +344,13 @@ void GameDialog::nextFrame() {
                     }
                 }
             }
+            ////////////////////////////////////////////
+            //// NOW update all items within screen
+            ////////////////////////////////////////////
             if(!ship->dead){
                 // if the ship is dead, we do not need to update it
                 Config* c = Config::getInstance();
-
+                // get instructions
                 QStringList instruct = c->get_instructs();
                 if (next_instruct >= instruct.size()) {
                     next_instruct = next_instruct % instruct.size();
@@ -398,8 +400,9 @@ void GameDialog::nextFrame() {
                         }
                     }
                 }
-
-                // check collision of laser with alien
+                ////////////////////////////////////////////
+                //// update laser gun
+                ////////////////////////////////////////////
                 // loop through the recursive aliens, put in stack first
                 if(laserBeam.exists){
                     std::stack<AlienBase*> stack;
@@ -426,7 +429,9 @@ void GameDialog::nextFrame() {
                         }
                     }
                 }
-
+                ////////////////////////////////////////////
+                //// Update power ups in screen
+                ////////////////////////////////////////////
                 // check collision of powerups with ship
                 std::vector<Powerup>::iterator pit = powerups.begin();
                 while (pit != powerups.end()) {
@@ -462,6 +467,7 @@ void GameDialog::nextFrame() {
                 }
                 ship->update(); //update ship locations
             }
+
             updateBullets(); //update bullets locations
 
             if(!legacyMode){
@@ -523,7 +529,6 @@ void GameDialog::updateBullets()
 
         bool outOfScreen = (b->get_y() < 0 || b->get_y() >= SCALEDHEIGHT || /* out of screen in Y */
                             b->get_x() < 0 || b->get_x() >= SCALEDWIDTH); /* out of screen in X */
-
         if (outOfScreen || score > 0 || updateBullets_barrierChkHelper(b->get_x(), b->get_y())){ /* hit the barrier */
             // bullet shoud get destoryed
             delete b;
@@ -541,12 +546,10 @@ void GameDialog::updateBullets()
                 b->move();
                 return;
             }
-
             explosions.push_back(Explosion(ship->get_x()+ship->get_image().width()/2,
                                            ship->get_y()+ship->get_image().height()/5,
                                            ship->get_image().width()*1.4, ShipExplosion));
             // DEAD SHIP!
-
             ship->dead = true;
             delete b;
             bullets.erase(bullets.begin() + i);
@@ -678,11 +681,11 @@ void GameDialog::paintEvent(QPaintEvent*) {
 
         if(!legacyMode){
             // Draw all the PowerUps
-            for(Powerup p : powerups)
+            for(Powerup& p : powerups)
                 p.draw(&painter);
 
             // Draw all the barrier blocks
-            for(BarrierBlock b: barriers)
+            for(BarrierBlock& b: barriers)
                 b.draw(&painter);
 
             // draw explosions
@@ -810,13 +813,10 @@ int GameDialog::randInt(int low, int high){
 }
 
 
-void GameDialog::SeedRandInt()
-{
+void GameDialog::SeedRandInt() {
     // seed the random int
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
 }
-
-
 
 }

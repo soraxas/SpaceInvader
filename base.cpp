@@ -2,8 +2,8 @@
 
 namespace game {
 Base::Base(QPixmap image, double scale, int x, int y, int boundaryX, int boundaryY, int minX)
-        : image(image), scale(scale), x(x), y(y), boundaryX(boundaryX), boundaryY(boundaryY),
-          minX(minX) {}
+    : image(image), scale(scale), x(x), y(y), boundaryX(boundaryX), boundaryY(boundaryY),
+      minX(minX) {}
 
 // check the coordinate is inside e.g., X inside Base width
 bool Base::checkXY(int x1, int x2, int myX) {
@@ -18,22 +18,32 @@ bool Base::collides(int x1, int x2, int y1, int y2) {
     int myY1 = this->get_y();
     int myY2 = this->get_image().height() + myY1;
 
-    bool selfInsideTarget = (checkXY(x1, x2, myX1) && checkXY(y1, y2, myY1)) ||
-                            (checkXY(x1, x2, myX2) && checkXY(y1, y2, myY1)) ||
-                            (checkXY(x1, x2, myX1) && checkXY(y1, y2, myY2)) ||
-                            (checkXY(x1, x2, myX2) && checkXY(y1, y2, myY2));
-    // some Base in future might be larger than the target.
-    bool targetInsideBullet = (checkXY(myX1, myX2, x1) && checkXY(myY1, myY2, y1)) ||
-                              (checkXY(myX1, myX2, x1) && checkXY(myY1, myY2, y2)) ||
-                              (checkXY(myX1, myX2, x2) && checkXY(myY1, myY2, y1)) ||
-                              (checkXY(myX1, myX2, x2) && checkXY(myY1, myY2, y2));
+    // Stage 3 : a better logigc for checking overlaps
+    if(myX1 < x2 &&
+            myX2 > x1 &&
+            myY1 < y2 &&
+            myY2 > y1){
+        return true;
+    }else{
+        return false;
+    }
 
-    return (selfInsideTarget || targetInsideBullet);
+//    bool selfInsideTarget = (checkXY(x1, x2, myX1) && checkXY(y1, y2, myY1)) ||
+//            (checkXY(x1, x2, myX2) && checkXY(y1, y2, myY1)) ||
+//            (checkXY(x1, x2, myX1) && checkXY(y1, y2, myY2)) ||
+//            (checkXY(x1, x2, myX2) && checkXY(y1, y2, myY2));
+//    // some Base in future might be larger than the target.
+//    bool targetInsideBullet = (checkXY(myX1, myX2, x1) && checkXY(myY1, myY2, y1)) ||
+//            (checkXY(myX1, myX2, x1) && checkXY(myY1, myY2, y2)) ||
+//            (checkXY(myX1, myX2, x2) && checkXY(myY1, myY2, y1)) ||
+//            (checkXY(myX1, myX2, x2) && checkXY(myY1, myY2, y2));
+
+//    return (selfInsideTarget || targetInsideBullet);
 }
 
 bool Base::collides(Base& base) {
     return this->collides(base.get_x(), base.get_x() + base.get_image().width(), base.get_y(),
-            base.get_y() + base.get_image().height());
+                          base.get_y() + base.get_image().height());
 }
 
 // SETTERS
