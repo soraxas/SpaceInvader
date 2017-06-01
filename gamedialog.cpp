@@ -129,7 +129,6 @@ void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
     if(swarms)
         delete swarms;
     SwarmInfo def = SwarmInfo();
-
     swarms = new Swarm(def, *this->ship);
     for (SwarmInfo info : makeSwarms) {
         AlienBase* s = new Swarm(info, *this->ship);

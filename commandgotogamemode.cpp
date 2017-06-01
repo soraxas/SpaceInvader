@@ -13,6 +13,7 @@ void CommandGotoGameMode::execute(){
     gDialog->currentState = GAME_STATUS_IN_GAME;
     gDialog->curStageNum = 0; // reset the stage number
     gDialog->commandClearStage->execute(); // clear stage
+    gDialog->cursor.setCursorState(FIGHTER);
 
     // change the menu item visibility
     gDialog->gameMenu.ui->startGameBtn->setHidden(true);
