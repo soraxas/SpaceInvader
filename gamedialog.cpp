@@ -329,7 +329,6 @@ void GameDialog::nextFrame() {
                         }else{
                             // finished all stage!
                             laserBeam.exists = false;
-                            commandGoToTitleScreenMode->execute();
                             requestName("You WON!!! Congratuations, enter your name for the leader board!");
                         }
                     }else{

@@ -19,6 +19,7 @@ void CommandClearStage::execute(){
     gDialog->laserBeam.exists = false;
     gDialog->statusBar.barrierEnergy = 0;
     gDialog->statusBar.plasmaEnergy = 100;
+    gDialog->gameScore = 0;
     gDialog->statusBar.plasmaDrained = false;
     gDialog->barriers.clear();
     gDialog->cursor.setCursorState(FIGHTER);

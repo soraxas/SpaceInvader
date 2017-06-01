@@ -12,6 +12,7 @@ void CommandGotoGameMode::execute(){
     // set the state and change in-game status
     gDialog->currentState = GAME_STATUS_IN_GAME;
     gDialog->curStageNum = 0; // reset the stage number
+    gDialog->commandClearStage->execute(); // clear stage
 
     // change the menu item visibility
     gDialog->gameMenu.ui->startGameBtn->setHidden(true);
