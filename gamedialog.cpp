@@ -264,6 +264,12 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             timer->start(c->get_frames() * timerModifier);
             qDebug() << QString::number(1/timerModifier);
             break;
+        case(Qt::Key_F12):
+            delete swarms;
+            SwarmInfo def = SwarmInfo();
+            swarms = new Swarm(def, *this->ship);
+            qDebug() << "Clearing all aliens";
+            break;
         }
     }
 }
@@ -842,7 +848,7 @@ void GameDialog::printDebugInfo(QPainter* p){
     QString str;
 
     // print keyboard hint
-    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [P] Pause/Resume | [-/+] Goto Prev/Next Stage");
+    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [Z] Change Cannon | [F12] Clear Stage");
 
     // print spaceship x, y
     str = "Spaceship [X:";

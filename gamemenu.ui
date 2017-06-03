@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>381</width>
-    <height>390</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="mouseTracking">
@@ -17,7 +17,7 @@
    <string>Game Menu</string>
   </property>
   <property name="windowOpacity">
-   <double>0.950000000000000</double>
+   <double>0.975000000000000</double>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">

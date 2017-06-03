@@ -3,12 +3,8 @@
 
 using namespace game;
 
-void UnitTestSpaceInvader::initTestCase(){
-
-}
-void UnitTestSpaceInvader::cleanupTestCase(){
-
-}
+void UnitTestSpaceInvader::initTestCase(){}
+void UnitTestSpaceInvader::cleanupTestCase(){}
 
 void UnitTestSpaceInvader::init(){
     // initialise the game dialog
@@ -17,12 +13,6 @@ void UnitTestSpaceInvader::init(){
 void UnitTestSpaceInvader::cleanup(){
     // clear everything
     delete gd;
-}
-
-
-
-void UnitTestSpaceInvader::testBullet(){
-
 }
 
 void UnitTestSpaceInvader::testCommandPattern(){
@@ -195,6 +185,15 @@ void UnitTestSpaceInvader::testStageMaker(){
 }
 
 void UnitTestSpaceInvader::testStatusBar(){
-
+    // create a status bar
+    StatusBar sBar(gd);
+    // test the initial value of the energy bar
+    QVERIFY(sBar.plasmaEnergy - 100 < 0.1 && sBar.plasmaEnergy - 100 > -0.1);
+    QVERIFY(sBar.barrierEnergy - 0 < 0.1 && sBar.barrierEnergy - 0 > -0.1);
+    for(int i = 0; i < 100; ++i)
+        sBar.update();
+    // test again and the value should be the same
+    QVERIFY(sBar.plasmaEnergy - 100 < 0.1 && sBar.plasmaEnergy - 100 > -0.1);
+    QVERIFY(sBar.barrierEnergy - 0 < 0.1 && sBar.barrierEnergy - 0 > -0.1);
 }
 
