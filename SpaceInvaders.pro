@@ -64,7 +64,8 @@ SOURCES += main.cpp\
     commandgotostagemakermode.cpp \
     commandgotoleaderboardmode.cpp \
     commandgototitlescreenmode.cpp \
-    leaderboard.cpp
+    leaderboard.cpp \
+    qtsoundplayer.cpp
 
 HEADERS  += \
     base.h \
@@ -107,7 +108,8 @@ HEADERS  += \
     commandgotostagemakermode.h \
     commandgotoleaderboardmode.h \
     commandgototitlescreenmode.h \
-    leaderboard.h
+    leaderboard.h \
+    qtsoundplayer.h
 
 FORMS    += \
     gamemenu.ui \

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>Sounds/BackgroundMusic.mp3</file>
         <file>Sounds/shoot.wav</file>
         <file>Images/SpaceInvaderTitle.png</file>
         <file>Images/Gun.png</file>

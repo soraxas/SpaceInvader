@@ -1,6 +1,7 @@
 #include "gamemenu.h"
 #include "gamedialog.h"
 #include <QString>
+#include "qtsoundplayer.h"
 
 namespace game{
 GameMenu::GameMenu(GameDialog* gDialog, QWidget *parent, int powerupDropRate) :
@@ -10,6 +11,9 @@ GameMenu::GameMenu(GameDialog* gDialog, QWidget *parent, int powerupDropRate) :
     ui->returnToTitleBtn->setHidden(true);
     ui->dropRateSlider->setValue(powerupDropRate);
     ui->dropRate->setText(QString::number(powerupDropRate)+"%");
+    bgMusicVolumeLevel = QTSoundPlayer::getInstance()->getBgMusicVolumeLevel();
+    ui->bgMusicLabel->setText(QString::number(bgMusicVolumeLevel)+"%");
+    ui->bgMusicSlider->setValue(bgMusicVolumeLevel);
 }
 
 GameMenu::~GameMenu(){
@@ -71,4 +75,10 @@ void game::GameMenu::on_startGameBtn_clicked(){
 void game::GameMenu::on_returnToTitleBtn_clicked(){
     gDialog->commandGoToTitleScreenMode->execute();
     close();
+}
+
+void game::GameMenu::on_bgMusicSlider_valueChanged(int value){
+    bgMusicVolumeLevel = value;
+    ui->bgMusicLabel->setText(QString::number(value)+"%");
+    QTSoundPlayer::getInstance()->setBgMusicVolumeLevel(value);
 }

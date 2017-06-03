@@ -5,7 +5,7 @@
 #include "base.h"
 #include "bullet.h"
 #include "bulletbuilder.h"
-#include <QSoundEffect>
+#include "qtsoundplayer.h"
 namespace game {
 class Alien : public AlienBase {
 public:
@@ -29,7 +29,6 @@ protected:
     int velocity;
     int score;
 
-    QSoundEffect bulletSFX; //probably going to want to use this as a flyweight at some point
     BulletBuilder builder;
 };
 }

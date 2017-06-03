@@ -5,12 +5,8 @@ namespace game {
 Alien::Alien(QPixmap image, int x, int y, int velocity, int score, QString baseType)
         : AlienBase(image, 1, x, y, Config::getInstance()->get_SCALEDWIDTH() - image.width(),
                   Config::getInstance()->get_SCALEDHEIGHT(), 0),
-          velocity(velocity), score(score), bulletSFX(),
+          velocity(velocity), score(score),
           builder(-15, *this, baseType + "InvaderLaser", false) {
-
-    //BULLET SOUND EFFECTS
-    bulletSFX.setSource(QUrl::fromLocalFile(":/Sounds/invader.wav"));
-    bulletSFX.setVolume(0.3f);
 }
 
 // aliens only move L or R right now, perhaps in future U D (up,down)
@@ -42,7 +38,7 @@ QList<Bullet*> Alien::shoot(QString type) {
     // randomly generates a diagonal bullet - in future, you could have
     // a more determined way to generate them instead of just randomly doing it...
     int random = rand() % 3;
-    bulletSFX.play();
+    QTSoundPlayer::getInstance()->play(SOUND_bullet);
     QList<Bullet*> bullets;
     if (random == 0) {
         bullets.append(builder.build_bullet(type + "InvaderLaserRotateLeft"));

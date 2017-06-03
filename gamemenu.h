@@ -30,10 +30,13 @@ private slots:
     void on_startGameBtn_clicked();
     void on_returnToTitleBtn_clicked();
 
+    void on_bgMusicSlider_valueChanged(int value);
+
 private:
     GameDialog* gDialog;
     int speedModifier;
     int powerupDropRate;
+    int bgMusicVolumeLevel;
 };
 }
 #endif // GAMEMENU_H

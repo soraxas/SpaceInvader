@@ -17,6 +17,7 @@
 #include "stagemaker.h"
 #include "leaderboardnamerequest.h"
 #include "leaderboard.h"
+#include "qtsoundplayer.h"
 // command design pattern
 #include "command.h"
 #include "commandgamestart.h"
@@ -38,7 +39,6 @@
 #include <QPixmap>
 #include <QSound>
 #include <QDialog>
-#include <QSoundEffect>
 #include <QWidget>
 #include <vector>
 #include <QMouseEvent>
@@ -112,7 +112,6 @@ public:
     std::vector<Powerup> powerups;
     std::vector<Bullet*> bullets;
     AlienBase* swarms;  // swarms is the ROOT node of the composite
-    QSoundEffect shipFiringSound;
     LaserBeam laserBeam;
     StatusBar statusBar;
     Config* c;

@@ -16,7 +16,7 @@ namespace game {
     in stage 2.
 */
 GameDialog::GameDialog(QWidget* parent)
-    : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
+    : QDialog(parent), bullets(), stageMaker(this), debugMode(false),
       gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this, 0, POWERUP_DROP_RATE),
       swarms(NULL), leaderBoardNameRequest(LEADERBOARD_FILENAME, this), ship(NULL)
 {
@@ -57,9 +57,6 @@ GameDialog::GameDialog(QWidget* parent)
     stageMaker.init();
     curStageNum = 0; // default stage 0
     this->next_instruct = 0;
-    // SHIP SOUND
-    shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
-    shipFiringSound.setVolume(0.3);
 
     commandClearStage->execute();
     // test for legacy mode
@@ -93,6 +90,8 @@ GameDialog::GameDialog(QWidget* parent)
         QList<SwarmInfo> infos = c->getSwarmList()[0];
         generateAliens(infos);
     }
+    // play background music
+    QTSoundPlayer::getInstance()->playBgMusic();
 }
 
 GameDialog::~GameDialog() {
@@ -399,7 +398,7 @@ void GameDialog::nextFrame() {
                         Bullet* b = this->ship->shoot();
                         if(b){
                             bullets.push_back(b);
-                            this->shipFiringSound.play();
+                            QTSoundPlayer::getInstance()->play(SOUND_Ship_Fire);
                         }else{
 
                         }
@@ -427,7 +426,7 @@ void GameDialog::nextFrame() {
                             Bullet* b = this->ship->shoot();
                             if(b){
                                 bullets.push_back(b);
-                                this->shipFiringSound.play();
+                                QTSoundPlayer::getInstance()->play(SOUND_Ship_Fire);
                             }
                         }
                     }
