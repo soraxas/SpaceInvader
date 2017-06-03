@@ -264,6 +264,9 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             timer->start(c->get_frames() * timerModifier);
             qDebug() << QString::number(1/timerModifier);
             break;
+        case(Qt::Key_F11):
+            powerups.push_back(Powerup::generateRandomPowerup(GameDialog::randInt(0, SCALEDWIDTH), 0 - c->get_scale() * 20*2, c->get_scale() * 20));
+            break;
         case(Qt::Key_F12):
             delete swarms;
             SwarmInfo def = SwarmInfo();
@@ -848,7 +851,7 @@ void GameDialog::printDebugInfo(QPainter* p){
     QString str;
 
     // print keyboard hint
-    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [Z] Change Cannon | [F12] Clear Stage");
+    p->drawText(5, line_height, "[F1] Toggle Cheat | [C] Change Cursor | [Z] Change Cannon| [F11] Spawn powerups | [F12] Clear Stage");
 
     // print spaceship x, y
     str = "Spaceship [X:";

@@ -76,4 +76,88 @@ Extensions:
 
 ######  STAGE THREE  ######
 
-The main purpose of this stage is to polish the game into a more playable with game mechanics and functionality. The 
+Author: Oscar Lai
+unikey: tlai4178
+
+The main purpose of this stage is to polish the game into a more playable with game mechanics and functionality. The main implementations for
+the game mechanics is adding the proper controls of the spaceships by using left/right for movements (or A/D), and using space for shooting
+bullets. The game functions that were added also includes the game menu to controls the game settings, as well as different stages of the game
+mechanics. Here this sections will includes notes that describes the implemented functionality and the techniques used in it.
+
+Controlling of the space ship with cursor keys:
+  - The space ship is controlable with the use of arrow keys (<- or ->), or the use of A/D for easier shooting with left hand
+  - The use of [SPACE] bar to fire bullets
+  - the additions of delays between each shoot to prevent spamming of bubllets
+
+Controlling of the game with mouse:
+  - There are a few functions that could be controlled with mouse, both in game setting management and game power ups.
+  - The use of cursor to control game menu settings
+  - The use of cursor to act as a GUI to construct game stages and adding aliens into the game
+  - The use of cursor as a power ups that has the ability to act as power ups to defeat or protect the ship from bullets:
+    - Using cursor to add barrier blocks which will act as a barrier to defend the ship from bullets (will be destroyed from one hit)
+      - this will be activated when a "red feather" power up had been took by the space ship
+      - this will be activated until the barrier energy bar had been completely drained
+      - each added barrier blocks will drain a certain amount of plasma energy bar (Red bar)
+      - when it has been drained, cursor will be switched back to the tie-fighter state
+    - Using cursor to act as a plasma energy orb which has a energy bar and will destroy nearby bullets
+      - for each second the left button is being pressed, it will continuously drain plasma energy (blue bar)
+      - for each bullet being destroyed, it will drain a larger amount of plasma energy instantly
+      - if the plasma energy bar has been completely drained, it will temporarily being disabled. It will re-enable again when it has been fully recharged
+
+Game Stages:
+  - Each stages had been implemented to be define within the same config.txt file from Stage 1/2. The generation or the config patterns are still
+    the same as before, but each [swarms] tag will be concentrated into a signle stage if a [stage XX] tag is present within the config file
+  - The [Stage] tag is needed for the game to be treated in the new version (instead of the legacy mode). The SwarmInfo in the original Stage 2 have been
+    contained in a std::vector container and each index is representing each stage of the game. When all aliens have been destroyed, the next index in the
+    vector container will be spawns to represent the next stage. A transition animation will also be played before the spawning of the next stage.
+  - In short, when config.txt file contain the [stage] tag anywhere in the file, the new functionality will be triggered in the game. And every [swarm] tag
+    between  here and next present of [stage] tag (or end of file) will be within the same stage. The same goes for the next [stage] tag.
+
+Score board:
+  - The score board functionality has been added to the game, where it has been added by a separate class that represent the score board of the game
+  - The scores are saved after the ship has been destroyed or all stages have been finished. At that moment, a dialog box will be presented to ask player for
+    their name. After that, the "name", "stage" up to, and "score" will be appended to the file "LEADERBOARD.sav" in the score file.
+  - The score board will be sorted from the highest score to the lowest score. All past players will flow from the bottom to top.
+
+Behavioural Design pattern:
+  - Two behavioural pattern have been used in this game; State design pattern and command design pattern.
+  - Command Design Pattern:
+    - Used to implement each commands in the game menu, including the clearing of the stage, the changing of the mode to different mode, such as game mode,
+      leader board mode, stage maker mode. This is appropriate as it enables one to concentrate the game functionality into a single interface.
+  - State Design Pattern:
+    - Used to implement different state of the cursor and using the same interface to process each mouse event. It decoupple the state from the sending of the
+      Mouse Event
+
+Changing Speed of the game:
+  - It is achievable within the game menu with the use of a slider bar, and a visual representation of the "multiple coefficient" from x0.5 to x2.0
+
+Debugger mode:
+  - The use of [F1] will enable the debugger / cheat mode to allow user control the game functionality directly. For details check the instructions in the
+    [F1] mode and the source code.
+
+Extensions:
+  - There are multiple extensions present in this implementations. Some of them has been mentioned in previous dot points.
+
+  - Power ups
+    - The main extension where it was the first thoughts of extensions. There are two sub-extensions, one for cannon type and one for cursor type. The cursor
+      type is the first being implemented as it seems more "cool" than plain old cannon. But in the end both had been implemented.
+    - Cursor power up
+      - There are one normal state, and one power up. Normal state is a TIE-FIGHTER state (an aircraft from star war) where it is used to protect the ship
+        from incoming bullets. The state will be activated upon a mouse click. When it is activated, it will destory nearby bullets. Energy will be drained
+        every second.
+      - The PEN state. It is used to add additional barrier block into the game. This idea comes from the orginal space invader game where the block will block
+        incoming bullets.
+    - Cannon power up
+      - Machine Gun
+        - The firing rate will be increased and two line of bullets will be fired (instead of one). It will be reverted to normal gun will all ammons are outs.
+      - Laser Gun
+        - There will be a beam of laser being fire, with no rate (always continuous). Everything touches it will be destroyed. It will be reverted to normal gun
+          when all ammos are outs.
+
+  - Stage Maker
+    - This is another huge extension to allow player to be able to make their own stage and test it out. The hardest part is to create a GUI to allow player define
+      the stage with ease. The idea comes from Mario Maker, where a drag and drown system is used to drag energy in place. In this mode, each aliens and barrier blocks
+      are draggable into the main game screen. And to enable the use to define the movements of aliens, an instruction box is added into the game to able to link the
+      instructions to aliens to control them like a swarms.
+    - When the use click on the test stage button, each placed objects will be translated into the main game engine to build up a stage that looks exactly like what the
+      user have been specified in the STAGE MAKER mode.
