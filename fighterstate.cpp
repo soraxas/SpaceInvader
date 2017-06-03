@@ -11,12 +11,23 @@ namespace game{
 FighterState::FighterState(Cursor* c, GameDialog* gDialog) : game::CursorState(c, gDialog)
 {}
 
+/**
+    Given a mouse event, process the event by updating the cursor location
+
+    @param the QMouse event triggers
+*/
 void FighterState::processMouseEvent(QMouseEvent *event){
     // update cursor location
     cursorX = event->pos().x();
     cursorY = event->pos().y();
 }
 
+
+/**
+    Set the cursor display as the fighter state
+
+    @param whether set current display as normal (fighter image) or non-normal (fighter image with plasma energy sheild)
+*/
 void FighterState::setCursorDisplay(bool normalState){
     if(normalState){
         // set the cursor as the TIE Fighter image
@@ -50,6 +61,14 @@ void FighterState::updateCursorDisplay(){
     setCursorDisplay(true);
 }
 
+/**
+    Update the logic of this mouse event
+    The idea is if the current cursor location is within range of any other bullets,
+    it will try to desotry it as an attemp of "shielding the player"
+    The limitation is it is goverened by the energy bar that the player currently has.
+    The energy will drain every second that the mouse is pressed. Also when it actually
+    Defended a bullet, it will drain a certain amount of energy immediately.
+*/
 void FighterState::update(){
     // only delete nearby bullet when left button is held
     if(leftPressing && !gDialog->statusBar.plasmaDrained){

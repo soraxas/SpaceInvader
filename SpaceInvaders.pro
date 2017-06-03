@@ -109,7 +109,7 @@ HEADERS  += \
     commandgototitlescreenmode.h \
     leaderboard.h
 
-FORMS    += dialog.ui \
+FORMS    += \
     gamemenu.ui \
     instructionrequest.ui \
     leaderboardnamerequest.ui

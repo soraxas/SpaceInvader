@@ -1,31 +1,24 @@
 #include "gamedialog.h"
-#include "bullet.h"
-#include "ship.h"
-#include <QDebug>
-#include <QKeyEvent>
-#include <QPainter>
-#include <QPixmap>
-#include <QSound>
-#include <QTimer>
-#include <QWidget>
-#include <vector>
-#include <QCursor>
-#include <QtMath>
-#include <QTime>
-#include <stack>
+#include <QtDebug>
 
 #define CURSOR_BASE_RADIUS 50
 #define STATUS_BAR_HEIGHT 100
 #define LEADERBOARD_FILENAME "../SpaceInvaders/LEADERBOARD.sav"
-
-#define POWERUP_DROP_RATE 35 //35
+#define POWERUP_DROP_RATE 15 //35
 
 namespace game {
 
+/**
+    The main class that controls all the functionality of the entire game. Constructor is
+    in-charge to initialise every internal variabels and start in a title screen mode to
+    wait for user input. One exception is when the config file does not exists or it is in
+    an older-style, it will run in a legacy mode where the game will be function as the same
+    in stage 2.
+*/
 GameDialog::GameDialog(QWidget* parent)
     : QDialog(parent), bullets(), shipFiringSound(this), stageMaker(this), debugMode(false),
-      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this), swarms(NULL),
-      leaderBoardNameRequest(LEADERBOARD_FILENAME, this)
+      gameScore(0), statusBar(this), bg(500, 500), cursor(this), gameMenu(this, 0, POWERUP_DROP_RATE),
+      swarms(NULL), leaderBoardNameRequest(LEADERBOARD_FILENAME, this), ship(NULL)
 {
     // SET UP GAME DIMENSIONS AND CONFIG
     c = Config::getInstance();
@@ -63,18 +56,10 @@ GameDialog::GameDialog(QWidget* parent)
     initCommands();
     stageMaker.init();
     curStageNum = 0; // default stage 0
-    // SHIP
-    QPixmap ship;
-    if(legacyMode)
-        ship.load(":/Images/ship.png");
-    else
-        ship.load(":/Images/ship_xwing.png");
-    this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
     this->next_instruct = 0;
     // SHIP SOUND
     shipFiringSound.setSource(QUrl::fromLocalFile(":/Sounds/shoot.wav"));
     shipFiringSound.setVolume(0.3);
-
 
     commandClearStage->execute();
     // test for legacy mode
@@ -82,11 +67,14 @@ GameDialog::GameDialog(QWidget* parent)
         // if it is an old-style config file. Use legacy Mode
         legacyMode = true;
         STATUSBARHEIGHT = 0;
-        // if legacy, always in game
-        currentState = GAME_STATUS_IN_GAME;
-        QList<SwarmInfo> infos = c->getSwarmList()[0];
-        generateAliens(infos);
     }
+    // SHIP
+    QPixmap ship;
+    if(legacyMode)
+        ship.load(":/Images/ship.png");
+    else
+        ship.load(":/Images/ship_xwing.png");
+    this->ship = new Ship(ship, c->get_scale(), c->get_startpos(), SCALEDHEIGHT);
     leaderBoard.init(SCALEDWIDTH, SCALEDHEIGHT + STATUSBARHEIGHT, LEADERBOARD_FILENAME);
     // EXTENSION STAGE 1 PART 1 - RESCALE GAME SCREEN FOR SHIP SIZE
     this->setFixedWidth(SCALEDWIDTH);
@@ -99,6 +87,12 @@ GameDialog::GameDialog(QWidget* parent)
     // set the cursor
     cursor.radius = CURSOR_BASE_RADIUS * c->get_scale();
     cursor.setCursorState(NORMAL);
+    if(legacyMode){
+        // if legacy, always in game
+        currentState = GAME_STATUS_IN_GAME;
+        QList<SwarmInfo> infos = c->getSwarmList()[0];
+        generateAliens(infos);
+    }
 }
 
 GameDialog::~GameDialog() {
@@ -113,6 +107,9 @@ GameDialog::~GameDialog() {
     }
 }
 
+/**
+    Helper method to initialise every command design pattern
+*/
 void GameDialog::initCommands(){
     commandGameStart = std::unique_ptr<Command>(new CommandGameStart(this));
     commandGamePause = std::unique_ptr<Command>(new CommandGamePause(this));
@@ -124,7 +121,11 @@ void GameDialog::initCommands(){
     commandGoToLeaderBoardMode = std::unique_ptr<Command>(new CommandGotoLeaderBoardMode(this));
 }
 
-// make the swarms for this level.
+/**
+    Given a list of swarm info, generate aliens
+
+    @param list of swarm information
+*/
 void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
     if(swarms)
         delete swarms;
@@ -136,6 +137,12 @@ void GameDialog::generateAliens(const QList<SwarmInfo>& makeSwarms) {
     }
 }
 
+/**
+    Count the number of aliens on screen
+
+    @param the root of swarm pointer
+    @return number of aliens in that composite design pattern
+*/
 int GameDialog::countAliens(AlienBase* root){
     // given an alien base, return the recursive number of descendants
     int num = 0;
@@ -143,12 +150,18 @@ int GameDialog::countAliens(AlienBase* root){
         num += countAliens(child);
     }
     // base case if this root is the global pointer swarms, decrease one
-    if(root == swarms)
+    if(root == swarms || root->getAliens().size() != 0)
         return num;
     return num + 1;
 }
 
+/**
+    QT event that triggers when a key was pressed
+
+    @param QKeyevent of the triggers
+*/
 void GameDialog::keyPressEvent(QKeyEvent* event) {
+    // if it is legacy mdoe, limits the available functionality
     if(legacyMode){
         if(event->key() == Qt::Key_P){
             if(paused)
@@ -172,7 +185,7 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
     }
 
     switch(event->key()){
-    //    case(Qt::Key_P):
+    case(Qt::Key_P):
     case(Qt::Key_Escape):
         if(currentState == GAME_STATUS_STAGE_MAKER_TESTING){
             // special case of stage maker state
@@ -200,16 +213,6 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
         break;
     case(Qt::Key_F1):
         debugMode = !debugMode;
-        break;
-    case(Qt::Key_F2):
-        timerModifier += 0.1;
-        timer->start(c->get_frames() * timerModifier);
-        qDebug() << QString::number(1/timerModifier);
-        break;
-    case(Qt::Key_F3):
-        timerModifier -= 0.1;
-        timer->start(c->get_frames() * timerModifier);
-        qDebug() << QString::number(1/timerModifier);
         break;
     }
 
@@ -245,7 +248,6 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             qDebug() << "Generating stage " << QString::number(curStageNum);
             generateAliens(c->getSwarmList()[curStageNum]);
             break;
-
         case(Qt::Key_Minus):
             if(curStageNum - 1 <= 0)
                 break;
@@ -253,10 +255,25 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             qDebug() << "Generating stage " << QString::number(curStageNum);
             generateAliens(c->getSwarmList()[curStageNum]);
             break;
+        case(Qt::Key_F2):
+            timerModifier += 0.1;
+            timer->start(c->get_frames() * timerModifier);
+            qDebug() << QString::number(1/timerModifier);
+            break;
+        case(Qt::Key_F3):
+            timerModifier -= 0.1;
+            timer->start(c->get_frames() * timerModifier);
+            qDebug() << QString::number(1/timerModifier);
+            break;
         }
     }
 }
 
+/**
+    QT event triggers when a key is pressed
+
+    @param QKey event
+*/
 void GameDialog::keyReleaseEvent(QKeyEvent* event) {
     switch(event->key()){
     case(Qt::Key_Left):
@@ -278,18 +295,35 @@ void GameDialog::keyReleaseEvent(QKeyEvent* event) {
     }
 }
 
+/**
+    QT event triggers when mouse is pressed
 
+    @param QMouse event
+*/
 void GameDialog::mousePressEvent(QMouseEvent* event){
     cursor.getCurState()->processMousePress(event);
 }
+/**
+    QT event triggers when mouse is released
+
+    @param QMouse event
+*/
 void GameDialog::mouseReleaseEvent(QMouseEvent* event){
     cursor.getCurState()->processMouseRelease(event);
 }
+/**
+    QT event triggers when mouse is moved within the dialog box
+
+    @param QMouse event
+*/
 void GameDialog::mouseMoveEvent(QMouseEvent* event){
     cursor.getCurState()->processMouseEvent(event);
 }
 
-// shows this game score
+/**
+    show the game score
+
+*/
 void GameDialog::showScore() {
     // in future, implement 'score list' in menu.
     menu->openScore();
@@ -653,7 +687,6 @@ void GameDialog::paintTitleScreen(QPainter& painter){
 }
 
 void GameDialog::paintStageTransition(QPainter& painter){
-
     painter.save();
     QFont f = painter.font();
     f.setPixelSize(100);
@@ -732,10 +765,12 @@ void GameDialog::paintEvent(QPaintEvent*) {
     }
 }
 
-// if this bullet is unfriendly, only check if it hits Ship
-// if this bullet is friendly, will check the swarm;
-// returns the score from the deleted hit object.
-// Returns 0 if nothing hit, -ve if ship is hit.
+/**
+    if this bullet is unfriendly, only check if it hits Ship
+    if this bullet is friendly, will check the swarm;
+    returns the score from the deleted hit object.
+    Returns 0 if nothing hit, -ve if ship is hit.
+*/
 int GameDialog::get_collided(Bullet*& b, AlienBase*& root) {
     int score = 0;
     // if it's an enemy bullet, then don't look at the swarm.

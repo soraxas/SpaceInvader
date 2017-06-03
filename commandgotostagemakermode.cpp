@@ -11,7 +11,7 @@ CommandGotoStageMakerMode::CommandGotoStageMakerMode(GameDialog* gDialog) : Comm
 void CommandGotoStageMakerMode::execute(){
     // set the state and change in-game status
     gDialog->currentState = GAME_STATUS_STAGE_MAKER;
-    gDialog->cursor.setCursorState(STAGEMMAKER);
+    gDialog->cursor.setCursorState(STAGEMAKER);
     gDialog->commandClearStage->execute();
 
     // change the menu item visibility

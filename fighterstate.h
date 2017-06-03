@@ -1,6 +1,10 @@
 #ifndef FIGHTERSTATE_H
 #define FIGHTERSTATE_H
 
+/**
+    State design pattern implementation
+*/
+
 #include "cursorstate.h"
 #include "cursor.h"
 

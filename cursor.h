@@ -10,9 +10,14 @@
 #include "makerstate.h"
 #include "penstate.h"
 
+/**
+    Class that provide the functionality of a cursor, that is, to function as the cursor when it's
+    on top of the dialog box
+*/
+
 namespace game{
 
-enum CURSOR_STATE{NORMAL, FIGHTER, PEN, STAGEMMAKER, END_OF_CURSOR_STATE};
+enum CURSOR_STATE{NORMAL, FIGHTER, PEN, STAGEMAKER, END_OF_CURSOR_STATE};
 class GameDialog;
 class Cursor{
 public:

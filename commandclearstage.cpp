@@ -7,10 +7,16 @@ namespace game {
 CommandClearStage::CommandClearStage(GameDialog* gDialog) : Command(gDialog){
 }
 
+/**
+    Clear everything that is currently on screen and reset every game status
+*/
 void CommandClearStage::execute(){
     // clear/reset everything
-    gDialog->ship->dead = false;
-    gDialog->ship->set_x(gDialog->SCALEDWIDTH/2);
+    if(gDialog->ship){
+        gDialog->ship->dead = false;
+        gDialog->ship->set_x(gDialog->SCALEDWIDTH/2);
+    }
+    // free all bullets
     for(auto&& b : gDialog->bullets)
         delete b;
     gDialog->bullets.clear();
@@ -24,6 +30,7 @@ void CommandClearStage::execute(){
     gDialog->barriers.clear();
     gDialog->cursor.setCursorState(FIGHTER);
     delete gDialog->swarms;
+    // create a default swarms for the game
     SwarmInfo def = SwarmInfo();
     gDialog->swarms = new Swarm(def, *gDialog->ship);
 }

@@ -7,6 +7,7 @@
 #include <QTextStream>
 #define NAME_LENGTH 5
 
+
 namespace game {
 
 class Config {
@@ -62,6 +63,5 @@ public:
 
     int get_SCALEDWIDTH();
     int get_SCALEDHEIGHT();
-    bool shipUseXwing;
 };
 }

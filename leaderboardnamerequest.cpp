@@ -4,7 +4,7 @@
 #include <QtDebug>
 #include <QTextStream>
 
-
+namespace game{
 LeaderBoardNameRequest::LeaderBoardNameRequest(QString filename, game::GameDialog* gDialog, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::leaderBoardNameRequest), filename(filename), gDialog(gDialog)
@@ -43,4 +43,11 @@ void LeaderBoardNameRequest::on_buttonBox_accepted()
     out.flush();
     // return to title screen
     gDialog->commandGoToLeaderBoardMode->execute();
+}
+
+// override close event
+void LeaderBoardNameRequest::reject() {
+    gDialog->commandGoToTitleScreenMode->execute();
+    QDialog::reject();
+}
 }

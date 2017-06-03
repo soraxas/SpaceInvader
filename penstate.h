@@ -1,6 +1,10 @@
 #ifndef PENSTATE_H
 #define PENSTATE_H
 
+/**
+    State design pattern implementation
+*/
+
 #include "cursorstate.h"
 #include "cursor.h"
 #include "barrierblock.h"

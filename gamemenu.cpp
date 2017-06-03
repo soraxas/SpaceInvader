@@ -3,12 +3,13 @@
 #include <QString>
 
 namespace game{
-GameMenu::GameMenu(GameDialog* gDialog, QWidget *parent) :
-    QDialog(parent), ui(new Ui::GameMenu), gDialog(gDialog){
+GameMenu::GameMenu(GameDialog* gDialog, QWidget *parent, int powerupDropRate) :
+    QDialog(parent), ui(new Ui::GameMenu), gDialog(gDialog), powerupDropRate(powerupDropRate){
     ui->setupUi(this);
     speedModifier = 10;
-    powerupDropRate = 35;
     ui->returnToTitleBtn->setHidden(true);
+    ui->dropRateSlider->setValue(powerupDropRate);
+    ui->dropRate->setText(QString::number(powerupDropRate)+"%");
 }
 
 GameMenu::~GameMenu(){

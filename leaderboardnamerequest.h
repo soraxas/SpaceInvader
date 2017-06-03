@@ -10,8 +10,6 @@ class leaderBoardNameRequest;
 }
 namespace game {
 class GameDialog;
-}
-
 class LeaderBoardNameRequest : public QDialog
 {
     Q_OBJECT
@@ -24,7 +22,7 @@ public:
     game::GameDialog* gDialog;
 private slots:
     void on_buttonBox_accepted();
-
+    void reject();
 };
-
+}
 #endif // LEADERBOARDNAMEREQUEST_H

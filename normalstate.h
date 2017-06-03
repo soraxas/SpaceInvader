@@ -1,6 +1,10 @@
 #ifndef NORMALSTATE_H
 #define NORMALSTATE_H
 
+/**
+    State design pattern implementation
+*/
+
 #include "cursorstate.h"
 #include "cursor.h"
 

@@ -1,6 +1,11 @@
 #ifndef CURSORSTATE_H
 #define CURSORSTATE_H
 
+/**
+    Using stage design pattern for the different number of cursor states.
+*/
+
+
 #include <QDialog>
 #include <QMouseEvent>
 #include <QCursor>

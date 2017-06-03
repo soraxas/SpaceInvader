@@ -4,13 +4,26 @@
 [SHIP]
 size=Large
 name=Bobbetta
-ship=xwing
 x=200
 instructions=Right,Shoot,Right,Right,Right,Right,Shoot, Right, Left, Shoot,Left,Right,Right,Right,Left,Shoot, Left, Left, Shoot, Left,Left
 frames=50
 
-# This tag [STAGE XX] triggers the new functionality 
+# This tag [STAGE XX] triggers the new functionality
 [STAGE 1]
+[SWARM]
+position=200 200, 300 200, 400 200, 500 200
+type=blue
+move=R,L,R,L,R,U,L,L,R,L,R,L,R,L,R,R,L,R,L,R,L,R,R,R,R,R,R,R,L,L,R,L
+shoot=7
+
+[SWARM]
+position=200 300, 300 300, 400 300, 500 300
+type=red
+move=R,L,R,L,R,U,L,L,R,L,R,L,R,L,R,R,L,R,L,R,L,R,R,R,R,R,R,R,L,L,R,L
+shoot=7
+
+
+[STAGE 2]
 [SWARM]
 position=400 200, 400 230, 400 300, 420 320, 440 340, 460 340, 480 320, 500 300, 500 230, 500 200
 type=blue
@@ -47,5 +60,3 @@ shoot=30
 position=200 50
 type=dumb
 move=L,R,L,L,R,L,R,L,R,L,R,L
-
-

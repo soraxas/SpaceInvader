@@ -7,6 +7,9 @@ namespace game {
 CommandGameStart::CommandGameStart(GameDialog* gDialog) : Command(gDialog){
 }
 
+/**
+    Resume the game but starting the QTimer again.
+*/
 void CommandGameStart::execute(){
     gDialog->paused = false;
     gDialog->timer->start(static_cast<int>(gDialog->frames * gDialog->timerModifier));

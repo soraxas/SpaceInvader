@@ -14,7 +14,7 @@ Cursor::Cursor(GameDialog* gDialog) : radius(5), preState(NORMAL)
     cursorStatesList[PEN] = pen;
     // the stagemaker state for the cursor (drawing barrier on the screen)
     CursorState* maker = new MakerState(this, gDialog);
-    cursorStatesList[STAGEMMAKER] = maker;
+    cursorStatesList[STAGEMAKER] = maker;
 
     setCursorState(NORMAL); // default as normal
 }

@@ -1,6 +1,10 @@
 #ifndef MAKERSTATE_H
 #define MAKERSTATE_H
 
+/**
+    State design pattern implementation
+*/
+
 #include "cursorstate.h"
 #include "cursor.h"
 

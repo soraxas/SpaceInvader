@@ -3,10 +3,15 @@
 
 #define DELTA_X_PER_TICK 3
 #define MAX_DELTA_X 35
-
 #define Y_DESCEND_PER_TICK 2
+#define VISIBILITY_RATE 0.05
+#define VISIBILITY_MAX 0.9
+#define VISIBILITY_MIN 0.4
 
 namespace game {
+/**
+    This defines the power up within the game environment
+*/
 
 Powerup::Powerup(PowerupType type, int x, int y, int radius) :
     radius(radius), type(type), turnToInvisable(true), alpha(1), centerX(x), centerY(y), deltaX(0)
@@ -31,7 +36,7 @@ void Powerup::draw(QPainter* p){
     p->setPen(pen);
     p->setOpacity(alpha);
     p->drawEllipse(x(), y(), radius*2, radius*2);
-p->setOpacity(100);
+    p->setOpacity(100);
     QPixmap pixmap;
     switch (type) {
     case(MachineGunPowerup):
@@ -48,16 +53,20 @@ p->setOpacity(100);
     p->drawPixmap(x() + radius*0.25, y() + radius*0.25, pixmap);
 
 }
+
+/**
+    Update the power up's location and visibility
+*/
 void Powerup::update(){
-    double rate = 0.05;
-    // slowly turn to invisable
+    double rate = VISIBILITY_RATE;
+    // slowly transite between invisible or visible
     if(turnToInvisable){
         alpha -= rate;
-        if(alpha <= 0.4)
+        if(alpha <= VISIBILITY_MIN)
             turnToInvisable = false;
     }else{
         alpha += rate;
-        if(alpha >= 0.9)
+        if(alpha >= VISIBILITY_MAX)
             turnToInvisable = true;
     }
     if(moveLeft){

@@ -15,34 +15,23 @@ class GameMenu : public QDialog
     Q_OBJECT
 
 public:
-    explicit GameMenu(GameDialog* gDialog, QWidget *parent = 0);
+    explicit GameMenu(GameDialog* gDialog, QWidget *parent = 0, int powerupDropRate = 35);
     ~GameMenu();
 
     Ui::GameMenu *ui;
 private slots:
     void reject();
-
     void on_gameSpeedSlider_valueChanged(int value);
-
     void on_dropRateSlider_valueChanged(int value);
-
     void on_applySetting_clicked();
-
-
-
     void on_exitBtn_clicked();
-
     void on_stageMakerBtn_clicked();
-
     void on_leaderBoardBtn_clicked();
-
     void on_startGameBtn_clicked();
-
     void on_returnToTitleBtn_clicked();
 
 private:
     GameDialog* gDialog;
-
     int speedModifier;
     int powerupDropRate;
 };

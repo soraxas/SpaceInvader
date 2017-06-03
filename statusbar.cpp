@@ -6,6 +6,9 @@ namespace game {
 StatusBar::StatusBar(GameDialog* dialog) : plasmaEnergy(100), barrierEnergy(0), gd(dialog), plasmaDrained(false)
 {}
 
+/**
+    this is the initialise method to be run before other method. TO initialise internal variables
+*/
 void StatusBar::buildBrush(){
     // determine location for status bar
     statusBar = QRect(0, gd->SCALEDHEIGHT, gd->SCALEDWIDTH, gd->STATUSBARHEIGHT);
@@ -17,7 +20,6 @@ void StatusBar::buildBrush(){
     statusBarBrush.setColorAt(0.5, QColor::fromRgb(120, 120, 120));
     statusBarBrush.setColorAt(0.8, QColor::fromRgb(100, 100, 100));
     this->statusBarBrush = statusBarBrush;
-
 
     // determine the dimension of the energy bar
     int barWidth = static_cast<int>(gd->SCALEDWIDTH*0.175);

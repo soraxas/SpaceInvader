@@ -4,6 +4,10 @@
 #include <QPainter>
 #include <vector>
 
+/**
+  Control the background animations of the entire game
+*/
+namespace game{
 struct star{ // for the stars at the background
     int x, y;
     QColor color;
@@ -21,5 +25,5 @@ private:
     int screenWidth;
     int screenHeight;
 };
-
+}
 #endif // BACKGROUND_H

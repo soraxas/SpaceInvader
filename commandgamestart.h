@@ -1,6 +1,10 @@
 #ifndef COMMANDGAMESTART_H
 #define COMMANDGAMESTART_H
 
+/**
+    Command used to start the timer and animations of the game elements
+*/
+
 #include "command.h"
 
 namespace game {

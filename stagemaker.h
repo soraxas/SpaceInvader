@@ -35,7 +35,6 @@ public:
     ~StageMaker();
     void init();
     void draw(QPainter* p);
-    void update();
     void buttonPressed();
     void buttonReleased();
     void clearAll();

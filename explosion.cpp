@@ -4,6 +4,7 @@
 #define SMALL_EXPLOSION_IMAGES_NUM 10
 #define SHIP_EXPLOSION_IMAGES_NUM 24
 
+namespace game{
 Explosion::Explosion(int x, int y, int scaledToWidth, ExplosionType type) : x(x), y(y)
 {
     finished = false;
@@ -49,4 +50,5 @@ void Explosion::nextFrame(){
             finished = true;
         }
     }
+}
 }

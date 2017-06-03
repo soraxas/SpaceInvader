@@ -22,7 +22,7 @@ The extensions implemented were:
 
 
 
-######  STAGE TWO  ###### 
+######  STAGE TWO  ######
 Cool dogs.
 CONFIG FILE SHOWCASE:
  config - is the one used for demo demonstrating everything, however aliens shoot quite a bit so it may close.
@@ -41,10 +41,10 @@ Fixes:
 
 Information:
 - Config fixed s.t., it can read other [headers] (and can still read the old config). A bit confusing due to the assignment requirement of needing backward compatibility, but basically its like recursive.
-- Used composite structural design for swarms of aliens. 
-	Alien is a leaf, Swarm is a composite. 
+- Used composite structural design for swarms of aliens.
+	Alien is a leaf, Swarm is a composite.
 - Made the ship instructions loop so it moves forever until game close / lose (not necessary for Stage 3)
-- Aliens use the same bullet builder class as Ship, just different parameters 
+- Aliens use the same bullet builder class as Ship, just different parameters
 - Aliens have a builder. If you want to make more aliens, please look at AlienBuilder
 - Added 'friendliness' for bullets, used later for checking collision.
 	- if you want aliens to shoot "Player" bullets for some reason (e.g., kill other aliens) try passing a special "type" of bullet to its builder. See Hunter class.
@@ -61,7 +61,7 @@ Extensions:
 	- Randomised shooting times (with given range at config)
 		> Also shoots a random type of bullet
 		(BUT YOU MAY REMOVE THIS, It's just to showcase angles)
-	- Aliens that hunt the Player. 
+	- Aliens that hunt the Player.
 		> And, aliens that are not so good at hunting. [hunter, dumb]
 		> Normal, non hunting aliens are [red, blue]
 	- REACTIONS: Aliens can react before they die.
@@ -72,3 +72,8 @@ Extensions:
 		- score is opened with said button
 	- Made so ships can't go out of the canvas area.
 	- Player ship dies on contact with alien.
+
+
+######  STAGE THREE  ######
+
+The main purpose of this stage is to polish the game into a more playable with game mechanics and functionality. The 

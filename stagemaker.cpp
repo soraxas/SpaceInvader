@@ -7,16 +7,24 @@
 #define BLOCK_DIMENSION 30
 
 namespace game {
+/**
+    This is the class that defines the entire looking of the stage maker mode.
+    It is to provide a way for player to define a stage that he/she likes or if
+    they want to try it out.
 
-
-StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog),
-    holdingObject(SMAKER_HOLDING_NONE)
+    @todo provide a way to save the stage.
+*/
+StageMaker::StageMaker(GameDialog* gDialog) : gDialog(gDialog), holdingObject(SMAKER_HOLDING_NONE)
 {}
 
 StageMaker::~StageMaker(){
-
 }
 
+/**
+    initialise all the internal variables to setup the stage maker.
+    Load every aliens images into a qrect to define the hitbox of it.
+    So it could be used to track if a mouse is clicked on top of it.
+*/
 void StageMaker::init(){
     QPixmap pixmap;
     SMakerPlacedObject obj;
@@ -75,7 +83,11 @@ void StageMaker::init(){
                          gDialog->STATUSBARHEIGHT*0.7, gDialog->STATUSBARHEIGHT*0.6);
 }
 
-
+/**
+    draw the entire scence of stage maker. This takes over the main game engine and
+    do all the draw of elements such as the dragging motions and the status bar
+    @param QPainter of the dialog box
+*/
 void StageMaker::draw(QPainter* p){
     QFont f;
     f.setPointSize(static_cast<int>(gDialog->STATUSBARHEIGHT * 0.3));
@@ -93,8 +105,8 @@ void StageMaker::draw(QPainter* p){
         p->drawText(50, 50, "PRESS [ESC] to exit testing mode");
         return;
     }else{
-        if(gDialog->cursor.state != STAGEMMAKER)
-            gDialog->cursor.setCursorState(STAGEMMAKER);
+        if(gDialog->cursor.state != STAGEMAKER)
+            gDialog->cursor.setCursorState(STAGEMAKER);
     }
     f.setPointSize(12);
     p->setFont(f);
@@ -163,6 +175,11 @@ void StageMaker::draw(QPainter* p){
     }
 }
 
+/**
+    Helper method to draw the instruction box
+
+    @param the painter and the qrect that defines the dimension of the box
+*/
 void StageMaker::drawInstructionBox(QPainter* p, const QRect& hitBox){
     p->setBrush(Qt::gray);
     p->setPen(Qt::yellow);
@@ -171,10 +188,9 @@ void StageMaker::drawInstructionBox(QPainter* p, const QRect& hitBox){
     p->drawRect(hitBox);
 }
 
-void StageMaker::update(){
-
-}
-
+/**
+    Tiggered when the cursor is pressed. Triggers will be sent from the StageMaker Cursor stage
+*/
 void StageMaker::buttonPressed(){
     if(gDialog->currentState == GAME_STATUS_STAGE_MAKER_TESTING)
         return;
@@ -274,10 +290,20 @@ void StageMaker::buttonReleased(){
     holdingObject = SMAKER_HOLDING_NONE;
 }
 
+/**
+    Clear every stage maker object on screen
+*/
 void StageMaker::clearAll(){
     objects.clear();
+    gDialog->commandClearStage->execute();
+    gDialog->currentState = GAME_STATUS_STAGE_MAKER;
 }
 
+/**
+    method / button to allow player to try out the stage they built. We need to take the input
+    of the gui location of each aliens / barrier blocks / instruction box to translate them into the
+    generateAliens method that was made in Stage 1.
+*/
 void StageMaker::testStage(){
     // Now we need to try use all the user inputs to generate a swarminfo file and run the stage.
     int defaultShootInterval = 10;
@@ -295,7 +321,6 @@ void StageMaker::testStage(){
             instructionsList.push_back(pair);
         }
     }
-
 
     // for all other alien objects, pair it with the instructions (if exists). if not, use the default instruction (do nothing)
     for(SMakerPlacedObject& obj : objects){
@@ -370,5 +395,3 @@ void StageMaker::testStage(){
 }
 
 }
-
-

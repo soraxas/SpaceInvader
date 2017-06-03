@@ -7,7 +7,9 @@ namespace game {
 class GameMenu;
 CommandGotoGameMode::CommandGotoGameMode(GameDialog* gDialog) : Command(gDialog){
 }
-
+/**
+    Go back to the game mode of the game
+*/
 void CommandGotoGameMode::execute(){
     // set the state and change in-game status
     gDialog->currentState = GAME_STATUS_IN_GAME;

@@ -3,6 +3,13 @@
 #define NUM_OF_STARS 100
 #define STARS_SPEED 2
 
+namespace game {
+
+/**
+    Initialise the background by some white stars in front and gray stars at back.
+    This is to simulate the illusion of space.
+    They also have different speed to give it a better visual effecs
+*/
 Background::Background(int screenWidth, int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {
     // gray stars in distance
@@ -45,4 +52,5 @@ void Background::draw(QPainter* p){
         int r = 2;
         p->drawEllipse(stars[i].x, stars[i].y, r, r);
     }
+}
 }
