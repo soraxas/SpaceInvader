@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>381</width>
-    <height>324</height>
+    <height>390</height>
    </rect>
   </property>
   <property name="mouseTracking">
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Game Menu</string>
   </property>
   <property name="windowOpacity">
    <double>0.950000000000000</double>
@@ -22,6 +22,29 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPushButton" name="resumeBtn">
+       <property name="text">
+        <string>Close Menu</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>35</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="returnToTitleBtn">
        <property name="text">

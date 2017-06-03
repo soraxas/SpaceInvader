@@ -67,6 +67,12 @@ void game::GameMenu::on_leaderBoardBtn_clicked(){
     close();
 }
 
+void game::GameMenu::on_resumeBtn_clicked(){
+    // resume game
+    gDialog->commandGameStart->execute();
+    close();
+}
+
 void game::GameMenu::on_startGameBtn_clicked(){
     gDialog->commandGoToGameMode->execute();
     close();
@@ -82,3 +88,4 @@ void game::GameMenu::on_bgMusicSlider_valueChanged(int value){
     ui->bgMusicLabel->setText(QString::number(value)+"%");
     QTSoundPlayer::getInstance()->setBgMusicVolumeLevel(value);
 }
+

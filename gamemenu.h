@@ -32,6 +32,8 @@ private slots:
 
     void on_bgMusicSlider_valueChanged(int value);
 
+    void on_resumeBtn_clicked();
+
 private:
     GameDialog* gDialog;
     int speedModifier;
