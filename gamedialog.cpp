@@ -91,7 +91,8 @@ GameDialog::GameDialog(QWidget* parent)
         generateAliens(infos);
     }
     // play background music
-    QTSoundPlayer::getInstance()->playBgMusic();
+    if(!legacyMode)
+        QTSoundPlayer::getInstance()->playBgMusic();
 }
 
 GameDialog::~GameDialog() {
@@ -268,6 +269,7 @@ void GameDialog::keyPressEvent(QKeyEvent* event) {
             powerups.push_back(Powerup::generateRandomPowerup(GameDialog::randInt(0, SCALEDWIDTH), 0 - c->get_scale() * 20*2, c->get_scale() * 20));
             break;
         case(Qt::Key_F12):
+
             delete swarms;
             SwarmInfo def = SwarmInfo();
             swarms = new Swarm(def, *this->ship);
